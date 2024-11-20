@@ -45,7 +45,7 @@ Fitur ini memungkinkan pengguna memberikan ulasan dan penilaian bintang untuk ke
 
 ### 🚗 Transportation Rentals and Sales 🚗
 #### 👩‍💻 Dikerjakan oleh Freia Arianti Zulaika ####
-Fitur utama ini menghubungkan pengguna dengan agen rental atau penjual lokal untuk menyewa atau membeli kendaraan. Pengguna dapat melihat berbagai opsi yang tersedia dan membandingkan harga melalui situs web.
+Fitur utama ini menghubungkan pengguna dengan agen rental atau penjual lokal untuk menyewa atau membeli kendaraan. Pengguna dapat melihat berbagai opsi yang tersedia yang di dalamnya terdapat informasi mengenai harga, lokasi penyewaan atau penjualan, kontak dari agen rental atau penjual lokal, serta berbagai informasi terkait produk kendaraan tersebut.
 
 ### 👥 Join Our Partnership 👥
 #### 👩‍💻 Dikerjakan oleh Raisa Sakila ####
