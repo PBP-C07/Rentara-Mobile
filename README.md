@@ -19,7 +19,7 @@
   - [🧑‍💻 Admin 🧑‍💻](#-admin-)
   - [🤝 Partner 🤝](#-partner-)
   - [🕵️‍♂️ Guest 🕵️‍♂️](#️️-guest-️️)
-- [**🔗 Tautan Deployment Aplikasi 🔗**](#-tautan-deployment-aplikasi-)
+- [**🔗 Tautan Tampilan Halaman Aplikasi 🔗**](https://www.figma.com/design/xJn3sWaJn3sDgdRUnDOJUO/UI-Rentara%2B?node-id=181-11&t=olQagVXAkcht2ZwZ-1)
 
 ## **🛠️ Anggota Kelompok C07 🛠️**
 * [Agus Tini Sridewi](https://github.com/agustinisridewi) (2306276004)
