@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class DealCard extends StatelessWidget {
-  const DealCard({Key? key}) : super(key: key);
+  const DealCard({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +20,8 @@ class DealCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        children: const [
+      child: const Column(
+        children: [
           Text(
             "LET'S FIND THE BEST DEAL!",
             style: TextStyle(

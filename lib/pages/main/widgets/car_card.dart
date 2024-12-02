@@ -10,7 +10,7 @@ class CarCard extends StatelessWidget {
   final VoidCallback? onTap;
 
   const CarCard({
-    Key? key,
+    super.key,
     required this.carName,
     required this.brand,
     required this.rating,
@@ -18,7 +18,7 @@ class CarCard extends StatelessWidget {
     required this.fuelType,
     required this.imageUrl,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
