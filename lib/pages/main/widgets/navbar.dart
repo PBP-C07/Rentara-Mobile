@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 
 class NavBarBottom extends StatelessWidget {
-  const NavBarBottom({Key? key}) : super(key: key);
+  const NavBarBottom({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       height: 80,
-      decoration: BoxDecoration(
-        color: const Color(0xFF2B6777),
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      decoration: const BoxDecoration(
+        color: Color(0xFF2B6777),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      child: SafeArea(
+      child: const SafeArea(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: const [
+          children: [
             Icon(Icons.home, color: Colors.white),
             Icon(Icons.explore, color: Colors.white),
             Icon(Icons.favorite_border, color: Colors.white),

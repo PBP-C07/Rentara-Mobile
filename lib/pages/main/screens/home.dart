@@ -5,7 +5,7 @@ import '../widgets/navbar.dart';
 import '../widgets/car_card.dart';
 
 class MyHomePage extends StatelessWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+  const MyHomePage({super.key});
 
   Widget _buildSectionHeader(String title, VoidCallback onViewAll) {
     return Row(
