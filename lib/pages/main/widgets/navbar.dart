@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../sewajual/screens/user/catalogue.dart';
 import '../../main/screens/home.dart';
+import '../../sewajual/screens/admin/form_vehicle.dart';
 
 class NavBarBottom extends StatelessWidget {
   const NavBarBottom({super.key});
@@ -25,7 +26,8 @@ class NavBarBottom extends StatelessWidget {
               onPressed: () {
                 Navigator.of(context).pushAndRemoveUntil(
                   PageRouteBuilder(
-                    pageBuilder: (context, animation1, animation2) => MyHomePage(),
+                    pageBuilder: (context, animation1, animation2) =>
+                        MyHomePage(),
                     transitionDuration: Duration.zero,
                     reverseTransitionDuration: Duration.zero,
                   ),
@@ -39,7 +41,8 @@ class NavBarBottom extends StatelessWidget {
                 Navigator.push(
                   context,
                   PageRouteBuilder(
-                    pageBuilder: (context, animation1, animation2) => CarCatalogueScreen(),
+                    pageBuilder: (context, animation1, animation2) =>
+                        CarCatalogueScreen(),
                     transitionDuration: Duration.zero,
                     reverseTransitionDuration: Duration.zero,
                   ),
