@@ -1,8 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'pages/main/screens/home.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const MyProviderApp());
+}
+
+class MyProviderApp extends StatelessWidget {
+  const MyProviderApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Provider(
+      create: (_) => CookieRequest(),
+      child: const MyApp(),
+    );
+  }
 }
 
 class MyApp extends StatelessWidget {
