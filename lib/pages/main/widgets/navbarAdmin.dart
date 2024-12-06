@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:rentara_mobile/pages/joinpartner/screens/customer/profile.dart';
+import '../../joinpartner/screens/customer/profile.dart';
+import '../../joinpartner/screens/admin/managePartner.dart';
 import '../../sewajual/screens/user/catalogue.dart';
 import '../../main/screens/home.dart';
 import '../../sewajual/screens/admin/form_vehicle.dart';
 
-class NavBarBottom extends StatelessWidget {
-  const NavBarBottom({super.key});
+
+void main() {
+  runApp(const NavBarBottomAdmin());
+}
+
+class NavBarBottomAdmin extends StatelessWidget {
+  const NavBarBottomAdmin({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +34,7 @@ class NavBarBottom extends StatelessWidget {
                 Navigator.of(context).pushAndRemoveUntil(
                   PageRouteBuilder(
                     pageBuilder: (context, animation1, animation2) =>
-                        MyHomePage(),
+                        ManagePartnerApp(),
                     transitionDuration: Duration.zero,
                     reverseTransitionDuration: Duration.zero,
                   ),
@@ -39,31 +45,15 @@ class NavBarBottom extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.explore, color: Colors.white),
               onPressed: () {
-                Navigator.push(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation1, animation2) =>
-                        CarCatalogueScreen(),
-                    transitionDuration: Duration.zero,
-                    reverseTransitionDuration: Duration.zero,
-                  ),
-                );
+                //placeholder 
               },
             ),
-            const Icon(Icons.favorite_border, color: Colors.white),
-            const Icon(Icons.directions_car, color: Colors.white),
+            const Icon(Icons.add_box_rounded, color: Colors.white),
+            const Icon(Icons.drive_eta_outlined, color: Colors.white),
 
             IconButton(icon: const Icon(Icons.person_outline, color: Colors.white),
               onPressed: () {
-                Navigator.push(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation1, animation2) =>
-                        const ProfilePage(),
-                    transitionDuration: Duration.zero,
-                    reverseTransitionDuration: Duration.zero,
-                  ),
-                );
+                //placeholder
               },
             ),
           ],

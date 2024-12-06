@@ -1,130 +1,95 @@
 import 'package:flutter/material.dart';
-import 'package:rentara_mobile/pages/joinpartner/widgets/customer/vehicleCard.dart'; // Import VehicleCard widget
+import 'package:rentara_mobile/pages/joinpartner/screens/customer/addVehicle.dart';
+import '../../widgets/customer/vehicleCard.dart'; // Ensure path is correct
+import '../../../main/widgets/navbar.dart'; // Bottom navigation bar
 
-void main() {
-  runApp(MyApp());
+class ListProductPage extends StatefulWidget {
+  @override
+  _ListProductPageState createState() => _ListProductPageState();
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class _ListProductPageState extends State<ListProductPage> {
+  List<Map<String, dynamic>> vehicles = [
+    {
+      'name': 'Vario 150',
+      'color': 'Hitam',
+      'price': 'Rp 125,000/day',
+      'status': 'sewa',
+      'imageUrl': 'https://p0.pikist.com/photos/914/869/mercedes-car-auto-transport-automotive-luxury-transportation-automobile-vehicle.jpg',
+    },
+    {
+      'name': 'Car A',
+      'color': 'Red',
+      'price': 'Rp 500,000/day',
+      'status': 'jual',
+      'imageUrl': 'https://p0.pikist.com/photos/914/869/mercedes-car-auto-transport-automotive-luxury-transportation-automobile-vehicle.jpg',
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primaryColor: const Color(0xFF2C8C8B), // Use teal color
-        fontFamily: 'Poppins',
-        appBarTheme: const AppBarTheme(
-          elevation: 4, // Slight elevation for AppBar
-          color: Color(0xFF2C8C8B), // Set the app bar color
-          titleTextStyle: TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
+    return Scaffold(
+      backgroundColor: const Color(0xFFFAFAFA), // Light gray background
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(100),
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Color(0xFF387478), // App bar color
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(32),
+              bottomRight: Radius.circular(32),
+            ),
           ),
-        ),
-      ),
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text(
-            'YOUR PRODUCTS',
-            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-          ),
-          backgroundColor: const Color(0xFF4B7C6D),
-          centerTitle: true,
-          elevation: 2,
-        ),
-        body: Stack( // Stack widget to allow positioning elements freely
-          children: [
-            ListProduct(), // The list of products displayed on the screen
-            Positioned(
-              bottom: 20, // Distance from the bottom of the screen
-              right: 20, // Distance from the right edge of the screen
-              child: Draggable(
-                feedback: Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color: Color(0xFF387478), // Background color of the button
-                    shape: BoxShape.circle, // Make it circular
-                  ),
-                  child: const Icon(
-                    Icons.add,
-                    color: Colors.white, // Color of the icon
-                    size: 30,
-                  ),
-                ),
-                childWhenDragging: const SizedBox(), // When dragging, show nothing at the original position
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: Color(0xFF387478), // Background color of the button
-                    shape: BoxShape.circle, // Make it circular
-                  ),
-                  child: const Icon(
-                    Icons.add,
-                    color: Colors.white, // Color of the icon
-                    size: 30,
-                  ),
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 30),
+              child: const Text(
+                'YOUR PRODUCT',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
               ),
             ),
-          ],
+          ),
+        ),
+      ),
+      body: ListView.builder(
+        itemCount: vehicles.length,
+        itemBuilder: (context, index) {
+          final vehicle = vehicles[index];
+          return VehicleCard(
+            name: vehicle['name'],
+            color: vehicle['color'],
+            price: vehicle['price'],
+            imageUrl: vehicle['imageUrl'],
+            status: vehicle['status'],
+          );
+        },
+      ),
+      bottomNavigationBar: NavBarBottom(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AddVehiclePage(),
+                        ),
+                      );
+        },
+        backgroundColor: Color(0xFF387478), // Green color
+        child: Icon(
+          Icons.add,
+          color: Colors.white, // White icon
         ),
       ),
     );
   }
 }
 
-class ListProduct extends StatelessWidget {
-  final List<Map<String, String>> products = [
-    {
-      "id": "1",
-      "tipe": "Sedan",
-      "warna": "Red",
-      "merk": "Honda",
-      "link_foto": "https://autoepcservice.com/autoepc/wp-content/uploads/2022/03/Toyota-Camry-2020-Electrical-Wiring-Diagram-0-600x337.jpg",
-      "harga": "500000",
-      "status": "Available",
-    },
-    {
-      "id": "2",
-      "tipe": "SUV",
-      "warna": "Blue",
-      "merk": "Toyota",
-      "link_foto": "https://autoepcservice.com/autoepc/wp-content/uploads/2022/03/Toyota-Camry-2020-Electrical-Wiring-Diagram-0-600x337.jpg",
-      "harga": "600000",
-      "status": "Rented",
-    },
-    // Add more products here...
-  ];
-
-  ListProduct({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return GridView.builder(
-      itemCount: products.length,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-        childAspectRatio: 0.7,
-      ),
-      itemBuilder: (context, index) {
-        final product = products[index];
-        return VehicleCard(
-          tipe: product['tipe']!,
-          warna: product['warna']!,
-          merk: product['merk']!,
-          linkFoto: product['link_foto']!,
-          harga: product['harga']!,
-          status: product['status']!,
-          vehicleId: product['id']!,
-        );
-      },
-    );
-  }
-}
+void main() => runApp(MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: ListProductPage(),
+    ));
