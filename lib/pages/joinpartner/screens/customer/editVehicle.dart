@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../main/widgets/navbar.dart'; // Assuming NavBarBottom is located here
 
-class AddVehiclePage extends StatelessWidget {
+class EditVehiclePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,7 +21,7 @@ class AddVehiclePage extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.only(top: 30), // Adjusted top padding for better vertical centering
               child: Text(
-                'ADD VEHICLE',
+                'EDIT VEHICLE',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -39,7 +39,7 @@ class AddVehiclePage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Enter your vehicle details',
+                'Update your vehicle details',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -90,7 +90,7 @@ class AddVehiclePage extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Handle form submission
+                    // Handle form submission for edit
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF629584), // Updated color
@@ -100,7 +100,7 @@ class AddVehiclePage extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    'Submit',
+                    'Update',
                     style: TextStyle(fontSize: 16, color: Colors.white), // Text color set to white
                   ),
                 ),
@@ -130,7 +130,7 @@ class AddVehiclePage extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(color: Color(0xFF629584)),
             ),
-            hintText: 'Enter $label',
+            hintText: 'Update $label',
             hintStyle: TextStyle(color: Color(0xFF387478)),
           ),
         ),
@@ -141,5 +141,5 @@ class AddVehiclePage extends StatelessWidget {
 
 void main() => runApp(MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: AddVehiclePage(),
+      home: EditVehiclePage(),
     ));

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:rentara_mobile/pages/joinpartner/screens/customer/listProduct.dart';
 import 'registerPartner.dart';
+import '../../../main/widgets/navbar.dart'; // Assuming NavBarBottom is located here
 
 void main() {
-  runApp(ProfilePageApp());
+  runApp(const ProfilePageApp());
 }
 
 class ProfilePageApp extends StatelessWidget {
@@ -13,10 +15,10 @@ class ProfilePageApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primaryColor: const Color(0xFF4B7C6D),
+        primaryColor: const Color(0xFF387478), // Updated color to match the palette
         fontFamily: 'Poppins',
       ),
-      home: ProfilePage(),
+      home: const ProfilePage(),
     );
   }
 }
@@ -29,22 +31,39 @@ class ProfilePage extends StatelessWidget {
     double screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
-      appBar: AppBar(
-        title: const Text(
-          'PROFILE',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+      backgroundColor: const Color(0xFFFAFAFA), // Background color
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(100), // Increased height for the app bar
+        child: Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF387478), // Background color of app bar
+            borderRadius: const BorderRadius.only(
+              bottomLeft: Radius.circular(32),
+              bottomRight: Radius.circular(32),
+            ),
+          ),
+          padding: const EdgeInsets.only(left: 24, right: 24),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 30), // Adjusted top padding for better vertical centering
+              child: const Text(
+                'PROFILE', // Title of the app bar
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
         ),
-        backgroundColor: const Color(0xFF4B7C6D),
-        centerTitle: true,
-        elevation: 2,
       ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           child: Column(
             children: [
-              // Profile Picture and Name
+              // Profile Picture and Name Section
               Center(
                 child: Column(
                   children: [
@@ -54,7 +73,7 @@ class ProfilePage extends StatelessWidget {
                       height: 120,
                       decoration: const BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Color(0xFF4B7C6D),
+                        color: Color(0xFF4B7C6D), // Green background
                       ),
                       child: const Icon(
                         Icons.person,
@@ -64,7 +83,7 @@ class ProfilePage extends StatelessWidget {
                     ),
                     const SizedBox(height: 15),
                     const Text(
-                      'Arka Bike',
+                      'Arka Bike', // Example name
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -97,7 +116,7 @@ class ProfilePage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 30), // Adjust the gap between profile and menu items
-              // List Options
+              // List Options Section
               Column(
                 children: [
                   buildOptionTile(
@@ -107,13 +126,22 @@ class ProfilePage extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => RegisterPartnerPage(),
+                          builder: (context) => const RegisterPartnerPage(),
                         ),
                       );
                     },
                   ),
                   const SizedBox(height: 16), // Add space between tiles
-                  buildOptionTile('My Products', Icons.shopping_cart),
+                  buildOptionTile('My Products', 
+                                  Icons.shopping_cart,
+                                  onTap: (){
+                                    Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ListProductPage(),
+                                    ),
+                                  );
+                                  }),
                   const SizedBox(height: 16), // Add space between tiles
                   buildOptionTile('Bookmark', Icons.bookmark),
                   const SizedBox(height: 16), // Add space between tiles
@@ -121,7 +149,7 @@ class ProfilePage extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 30), // Add spacing before the logout button
-              // Logout Button
+              // Logout Button Section
               ElevatedButton(
                 onPressed: () {},
                 style: ElevatedButton.styleFrom(
@@ -144,6 +172,8 @@ class ProfilePage extends StatelessWidget {
           ),
         ),
       ),
+      // Add NavBarBottom at the bottom
+      bottomNavigationBar: const NavBarBottom(), // Add your NavBarBottom widget here
     );
   }
 
