@@ -4,7 +4,7 @@ import '../../joinpartner/screens/admin/managePartner.dart';
 import '../../sewajual/screens/user/catalogue.dart';
 import '../../main/screens/home.dart';
 import '../../sewajual/screens/admin/form_vehicle.dart';
-
+import '../../sewajual/screens/admin/catalgoue_admin.dart';
 
 void main() {
   runApp(const NavBarBottomAdmin());
@@ -45,13 +45,21 @@ class NavBarBottomAdmin extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.explore, color: Colors.white),
               onPressed: () {
-                //placeholder 
+                Navigator.of(context).pushAndRemoveUntil(
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation1, animation2) =>
+                        ProductCatalogueAdmin(),
+                    transitionDuration: Duration.zero,
+                    reverseTransitionDuration: Duration.zero,
+                  ),
+                  (route) => false,
+                );
               },
             ),
             const Icon(Icons.add_box_rounded, color: Colors.white),
             const Icon(Icons.drive_eta_outlined, color: Colors.white),
-
-            IconButton(icon: const Icon(Icons.person_outline, color: Colors.white),
+            IconButton(
+              icon: const Icon(Icons.person_outline, color: Colors.white),
               onPressed: () {
                 //placeholder
               },

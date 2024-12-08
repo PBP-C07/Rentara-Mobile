@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:rentara_mobile/pages/joinpartner/screens/customer/profile.dart';
 import '../../sewajual/screens/user/catalogue.dart';
 import '../../main/screens/home.dart';
-import '../../sewajual/screens/admin/form_vehicle.dart';
+import '../../main/screens/profile.dart';
 
 class NavBarBottom extends StatelessWidget {
   const NavBarBottom({super.key});
@@ -52,8 +51,8 @@ class NavBarBottom extends StatelessWidget {
             ),
             const Icon(Icons.favorite_border, color: Colors.white),
             const Icon(Icons.directions_car, color: Colors.white),
-
-            IconButton(icon: const Icon(Icons.person_outline, color: Colors.white),
+            IconButton(
+              icon: const Icon(Icons.person_outline, color: Colors.white),
               onPressed: () {
                 Navigator.push(
                   context,
