@@ -4,27 +4,45 @@ import '../../models/vehicle_model.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
-class VehicleEntryFormPage extends StatefulWidget {
-  const VehicleEntryFormPage({super.key});
+class VehicleEditFormPage extends StatefulWidget {
+  final VehicleEntry vehicle;
+
+  const VehicleEditFormPage({super.key, required this.vehicle});
 
   @override
-  State<VehicleEntryFormPage> createState() => _VehicleEntryFormPageState();
+  State<VehicleEditFormPage> createState() => _VehicleEditFormPageState();
 }
 
-class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
+class _VehicleEditFormPageState extends State<VehicleEditFormPage> {
   final _formKey = GlobalKey<FormState>();
 
-  String _store = "";
-  String _brand = "";
-  String _type = "";
-  String _color = "";
-  JenisKendaraan _vehicleType = JenisKendaraan.MOBIL;
-  int _price = 0;
-  Status _status = Status.SEWA;
-  String _phone = "";
-  BahanBakar _fuelType = BahanBakar.BENSIN;
-  String _locationLink = "";
-  String _photoLink = "";
+  late String _store;
+  late String _brand;
+  late String _type;
+  late String _color;
+  late JenisKendaraan _vehicleType;
+  late int _price;
+  late Status _status;
+  late String _phone;
+  late BahanBakar _fuelType;
+  late String _locationLink;
+  late String _photoLink;
+
+  @override
+  void initState() {
+    super.initState();
+    _store = widget.vehicle.fields.toko;
+    _brand = widget.vehicle.fields.merk;
+    _type = widget.vehicle.fields.tipe;
+    _color = widget.vehicle.fields.warna;
+    _vehicleType = widget.vehicle.fields.jenisKendaraan;
+    _price = widget.vehicle.fields.harga;
+    _status = widget.vehicle.fields.status;
+    _phone = widget.vehicle.fields.notelp;
+    _fuelType = widget.vehicle.fields.bahanBakar;
+    _locationLink = widget.vehicle.fields.linkLokasi;
+    _photoLink = widget.vehicle.fields.linkFoto;
+  }
 
   InputDecoration _buildInputDecoration(String label) {
     return InputDecoration(
@@ -74,7 +92,7 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
 
   Widget _buildImagePreview() {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 16),
+      margin: const EdgeInsets.symmetric(vertical: 16),
       width: double.infinity,
       height: 200,
       decoration: BoxDecoration(
@@ -88,7 +106,7 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(Icons.photo_camera, size: 48, color: Colors.grey[400]),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
                     'No image preview',
                     style: TextStyle(color: Colors.grey[600]),
@@ -107,7 +125,7 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                     children: [
                       Icon(Icons.broken_image,
                           size: 48, color: Colors.grey[400]),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Text(
                         'Invalid image URL',
                         style: TextStyle(color: Colors.grey[600]),
@@ -145,17 +163,25 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
             children: [
               Padding(
                 padding: const EdgeInsets.all(20.0),
-                child: Text(
-                  'ADD NEW VEHICLE',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 28,
-                    fontWeight: FontWeight.w800,
-                  ),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back, color: Colors.white),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    const Text(
+                      'EDIT VEHICLE',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 28,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(30),
@@ -170,7 +196,7 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Enter vehicle details',
+                          'Edit vehicle details',
                           style: TextStyle(
                             color: Colors.teal[700],
                             fontSize: 20,
@@ -180,6 +206,7 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                         _buildImagePreview(),
                         const SizedBox(height: 24),
                         TextFormField(
+                          initialValue: _store,
                           decoration: _buildInputDecoration('Store Name'),
                           onChanged: (value) => setState(() => _store = value),
                           validator: (value) =>
@@ -187,6 +214,7 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                         ),
                         const SizedBox(height: 16),
                         TextFormField(
+                          initialValue: _brand,
                           decoration: _buildInputDecoration('Brand'),
                           onChanged: (value) => setState(() => _brand = value),
                           validator: (value) =>
@@ -194,6 +222,7 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                         ),
                         const SizedBox(height: 16),
                         TextFormField(
+                          initialValue: _type,
                           decoration: _buildInputDecoration('Type'),
                           onChanged: (value) => setState(() => _type = value),
                           validator: (value) =>
@@ -201,6 +230,7 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                         ),
                         const SizedBox(height: 16),
                         TextFormField(
+                          initialValue: _color,
                           decoration: _buildInputDecoration('Color'),
                           onChanged: (value) => setState(() => _color = value),
                           validator: (value) =>
@@ -227,6 +257,7 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                         ),
                         const SizedBox(height: 16),
                         TextFormField(
+                          initialValue: _price.toString(),
                           decoration: _buildInputDecoration('Price'),
                           keyboardType: TextInputType.number,
                           onChanged: (value) =>
@@ -260,6 +291,7 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                         ),
                         const SizedBox(height: 16),
                         TextFormField(
+                          initialValue: _phone,
                           decoration: _buildInputDecoration('Phone Number'),
                           keyboardType: TextInputType.phone,
                           onChanged: (value) => setState(() => _phone = value),
@@ -291,6 +323,7 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                         ),
                         const SizedBox(height: 16),
                         TextFormField(
+                          initialValue: _locationLink,
                           decoration: _buildInputDecoration('Location Link'),
                           onChanged: (value) =>
                               setState(() => _locationLink = value),
@@ -303,6 +336,7 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                         ),
                         const SizedBox(height: 16),
                         TextFormField(
+                          initialValue: _photoLink,
                           decoration: _buildInputDecoration('Photo Link'),
                           onChanged: (value) {
                             setState(() => _photoLink = value);
@@ -329,7 +363,7 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                               if (_formKey.currentState!.validate()) {
                                 try {
                                   final response = await request.postJson(
-                                    "http://127.0.0.1:8000/vehicle/create-flutter/",
+                                    "http://127.0.0.1:8000/vehicle/edit-flutter/${widget.vehicle.pk}/",
                                     jsonEncode({
                                       'toko': _store,
                                       'merk': _brand,
@@ -353,11 +387,10 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                                           .showSnackBar(
                                         const SnackBar(
                                           content: Text(
-                                              "Vehicle saved successfully!"),
+                                              "Vehicle updated successfully!"),
                                           backgroundColor: Colors.green,
                                         ),
                                       );
-                                      _formKey.currentState!.reset();
                                       Navigator.pop(context);
                                     } else {
                                       ScaffoldMessenger.of(context)
@@ -380,8 +413,8 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                                 }
                               }
                             },
-                            child: Text(
-                              'SUBMIT',
+                            child: const Text(
+                              'UPDATE',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import '../../models/vehicle_model.dart';
+import '../../../main/widgets/navbarAdmin.dart';
 
 class ProductCatalogueAdmin extends StatefulWidget {
   const ProductCatalogueAdmin({super.key});
@@ -266,18 +267,11 @@ class _ProductCatalogueAdminState extends State<ProductCatalogueAdmin> {
                     ),
                   ],
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: const [
-                      Icon(Icons.home_outlined, color: Colors.white),
-                      Icon(Icons.explore_outlined, color: Colors.white),
-                      Icon(Icons.add_circle_outline, color: Colors.white),
-                      Icon(Icons.delete_outline, color: Colors.white),
-                      Icon(Icons.person_outline, color: Colors.white),
-                    ],
-                  ),
+                child: const Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: NavBarBottomAdmin(),
                 ),
               ),
             ),
