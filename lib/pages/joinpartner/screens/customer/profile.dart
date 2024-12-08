@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:rentara_mobile/pages/joinpartner/screens/customer/listProduct.dart';
 import 'registerPartner.dart';
 import '../../../main/widgets/navbar.dart'; // Assuming NavBarBottom is located here
+import 'package:provider/provider.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
 
 void main() {
   runApp(const ProfilePageApp());
@@ -12,13 +14,19 @@ class ProfilePageApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return Provider(
+      create: (_) {
+        CookieRequest request = CookieRequest();
+        return request;
+      },
+      child : MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primaryColor: const Color(0xFF387478), // Updated color to match the palette
         fontFamily: 'Poppins',
       ),
       home: const ProfilePage(),
+    ),
     );
   }
 }

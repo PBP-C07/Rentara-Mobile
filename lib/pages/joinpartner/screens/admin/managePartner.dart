@@ -44,6 +44,8 @@ class ManagePartnerApp extends StatelessWidget {
 
 class ManagePartnerScreen extends StatelessWidget {
   const ManagePartnerScreen({super.key});
+  
+  
 
   @override
   Widget build(BuildContext context) {
@@ -51,10 +53,10 @@ class ManagePartnerScreen extends StatelessWidget {
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
-          // Number of Partners Section
+          // Bagian untuk jumlah partner
           Container(
             padding: const EdgeInsets.all(16),
-            width: double.infinity, // Menyesuaikan lebar dengan lebar penuh
+            width: double.infinity,
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
@@ -78,12 +80,12 @@ class ManagePartnerScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                const CircleAvatar(
+                CircleAvatar(
                   radius: 50,
                   backgroundColor: Color(0xFF2F635C),
                   child: Text(
                     '33',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 30,
                       color: Colors.white,
@@ -95,39 +97,11 @@ class ManagePartnerScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-          // List of Accepted and Pending Partners
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-            decoration: BoxDecoration(
-              color: const Color(0xFF2F635C),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    'Details',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                Icon(Icons.more_horiz, color: Colors.white),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8),
+          // Bagian detail partner yang diterima dan pending
           Expanded(
             child: ListView(
               children: [
-                // Accepted Partners Section
                 ListTile(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  tileColor: const Color(0xFFF6F8F7),
                   title: const Text(
                     'Accepted Partner',
                     style: TextStyle(
@@ -136,20 +110,13 @@ class ManagePartnerScreen extends StatelessWidget {
                       color: Color(0xFF2F635C),
                     ),
                   ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      Text(
-                        '28',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: Color(0xFF2F635C),
-                        ),
-                      ),
-                      SizedBox(width: 8),
-                      Icon(Icons.arrow_forward_ios, size: 16, color: Color(0xFF2F635C)),
-                    ],
+                  trailing: Text(
+                    '23',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Color(0xFF2F635C),
+                    ),
                   ),
                   onTap: () {
                     Navigator.push(
@@ -161,12 +128,7 @@ class ManagePartnerScreen extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: 8),
-                // Pending Partners Section
                 ListTile(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  tileColor: const Color(0xFFF6F8F7),
                   title: const Text(
                     'Pending Partner',
                     style: TextStyle(
@@ -175,20 +137,13 @@ class ManagePartnerScreen extends StatelessWidget {
                       color: Color(0xFF2F635C),
                     ),
                   ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      Text(
-                        '5',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: Color(0xFF2F635C),
-                        ),
-                      ),
-                      SizedBox(width: 8),
-                      Icon(Icons.arrow_forward_ios, size: 16, color: Color(0xFF2F635C)),
-                    ],
+                  trailing: Text(
+                    '5',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Color(0xFF2F635C),
+                    ),
                   ),
                   onTap: () {
                     Navigator.push(
@@ -203,10 +158,7 @@ class ManagePartnerScreen extends StatelessWidget {
             ),
           ),
         ],
-        
       ),
-      
     );
-    
   }
 }
