@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:rentara_mobile/pages/joinpartner/screens/customer/listProduct.dart';
+import 'package:rentara_mobile/pages/joinpartner/screens/customer/registerPartner.dart';
 import 'package:rentara_mobile/pages/main/screens/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'login.dart';
@@ -17,6 +19,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   String? username;
   bool isLoading = true;
+  bool isPartner = false;
 
   @override
   void initState() {
@@ -29,8 +32,25 @@ class _ProfilePageState extends State<ProfilePage> {
     setState(() {
       username = prefs.getString('username');
       isLoading = false;
+      isPartner = prefs.getBool('isPartner') ?? false;
     });
   }
+
+  Future<bool> checkPartnerStatus(CookieRequest request) async {
+  try {
+    // Mengirimkan permintaan GET ke server
+    final response = await request.get('http://127.0.0.1:8000/check_status/');
+    print(response);
+
+    return response['is_partner'] ?? false;
+  } catch (e) {
+    // Menangani kesalahan
+    print('Error: $e');
+    return false; // Mengembalikan false jika terjadi kesalahan
+  }
+}
+
+
 
   Widget _buildMenuItem(String title, IconData icon) {
     return Container(
@@ -302,7 +322,37 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       const SizedBox(height: 20),
                       InkWell(
-                        onTap: () {},
+                        onTap: () async {
+                          try {
+  bool isPartner = await checkPartnerStatus(request);
+  print('isPartner status: $isPartner'); // Debugging output
+
+  if (isPartner) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ListProductPage(),
+      ),
+    );
+  } else {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RegisterPartnerApp(),
+      ),
+    );
+  }
+} catch (e) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text('Error: $e'),
+      backgroundColor: Colors.red,
+    ),
+  );
+}
+
+                        },
+                                                
                         child: _buildMenuItem('Join Partner', Icons.handshake),
                       ),
                       InkWell(

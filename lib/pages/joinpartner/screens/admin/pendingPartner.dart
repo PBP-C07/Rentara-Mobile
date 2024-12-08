@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../../../main/widgets/navbarAdmin.dart'; // Assuming NavBarBottom is located here
+import '../../models/Partner.dart';
 
 void main() {
   runApp(const PendingPartnerApp());
@@ -50,8 +53,57 @@ class PendingPartnerApp extends StatelessWidget {
   }
 }
 
-class PendingPartnerScreen extends StatelessWidget {
+class PendingPartnerScreen extends StatefulWidget {
   const PendingPartnerScreen({super.key});
+
+  @override
+  State<PendingPartnerScreen> createState() => _PendingPartnerScreenState();
+}
+
+class _PendingPartnerScreenState extends State<PendingPartnerScreen> {
+  List<Partner> pendingPartners = [];
+  List<Partner> filteredPartners = [];
+  String searchQuery = '';
+  List<Partner> get pendingPartnersList => pendingPartners;
+
+  // Getter untuk menghitung jumlah partner pending
+  int get totalPending => pendingPartnersList.length;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchPartners().then((partners) {
+      setState(() {
+        pendingPartners = partners;
+        filteredPartners = partners;
+      });
+    });
+  }
+
+  Future<List<Partner>> fetchPartners() async {
+    final response = await http.get(Uri.parse('http://127.0.0.1:8000/partner_json/'));
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(response.body);
+      List<Partner> partners = data.map((json) => Partner.fromJson(json)).toList();
+      pendingPartners = partners.where((partner) => partner.fields.status == 'pending').toList();
+      return pendingPartners;
+    } else {
+      throw Exception('Failed to load partners');
+    }
+  }
+
+  void updateSearchQuery(String query) {
+    setState(() {
+      searchQuery = query.toLowerCase();
+      filteredPartners = pendingPartners
+          .where((partner) =>
+              partner.fields.toko.toLowerCase().contains(searchQuery) ||
+              partner.fields.linkLokasi.toLowerCase().contains(searchQuery) ||
+              partner.fields.notelp.contains(searchQuery))
+          .toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +115,7 @@ class PendingPartnerScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: TextField(
+              onChanged: updateSearchQuery,
               decoration: InputDecoration(
                 filled: true,
                 fillColor: const Color(0xFFFAFAFA), // Warna latar belakang input
@@ -85,9 +138,14 @@ class PendingPartnerScreen extends StatelessWidget {
                 mainAxisSpacing: 16,
                 childAspectRatio: 1.2,
               ),
-              itemCount: 4,
+              itemCount: filteredPartners.length,
               itemBuilder: (context, index) {
-                return const PendingPartnerCard();
+                final partner = filteredPartners[index];
+                return PendingPartnerCard(
+                  name: partner.fields.toko,
+                  address: partner.fields.linkLokasi,
+                  phone: partner.fields.notelp,
+                );
               },
             ),
           ),
@@ -98,7 +156,16 @@ class PendingPartnerScreen extends StatelessWidget {
 }
 
 class PendingPartnerCard extends StatelessWidget {
-  const PendingPartnerCard({super.key});
+  final String name;
+  final String address;
+  final String phone;
+
+  const PendingPartnerCard({
+    super.key,
+    required this.name,
+    required this.address,
+    required this.phone,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -126,9 +193,9 @@ class PendingPartnerCard extends StatelessWidget {
               color: const Color(0xFF387478), // Light green background for name
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Text(
-              'Arka Bike',
-              style: TextStyle(
+            child: Text(
+              name,
+              style: const TextStyle(
                 fontWeight: FontWeight.w600, // Semi-bold
                 fontSize: 16,
                 color: Colors.white, // White text
@@ -138,7 +205,6 @@ class PendingPartnerCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          
           // Address and Phone number with matching Container widths
           Column(
             children: [
@@ -149,9 +215,9 @@ class PendingPartnerCard extends StatelessWidget {
                   color: const Color(0xFF2F4F4F), // Dark green container
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Text(
-                  '123 Main Street',
-                  style: TextStyle(
+                child: Text(
+                  address,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w600, // Semi-bold
                   ),
@@ -166,9 +232,9 @@ class PendingPartnerCard extends StatelessWidget {
                   color: const Color(0xFF2F4F4F), // Dark green container
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Text(
-                  '+123 456 7890',
-                  style: TextStyle(
+                child: Text(
+                  phone,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w600, // Semi-bold
                   ),
@@ -178,7 +244,6 @@ class PendingPartnerCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-
           // Accept/Reject buttons inside Expanded widgets
           Flexible(
             child: Row(
@@ -195,7 +260,7 @@ class PendingPartnerCard extends StatelessWidget {
                     ),
                     child: const Text(
                       'Reject',
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500 ), // White text for reject button
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
                     ),
                   ),
                 ),
@@ -212,7 +277,7 @@ class PendingPartnerCard extends StatelessWidget {
                     ),
                     child: const Text(
                       'Accept',
-                      style: TextStyle(color: Colors.white), // White text for accept button
+                      style: TextStyle(color: Colors.white),
                     ),
                   ),
                 ),
