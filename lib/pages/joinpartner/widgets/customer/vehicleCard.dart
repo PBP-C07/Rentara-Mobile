@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:rentara_mobile/pages/joinpartner/screens/customer/editVehicle.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 
 class VehicleCard extends StatelessWidget {
+  final String vehicleId; // Tambahkan parameter vehicleId
   final String name;
   final String color;
   final String price;
@@ -10,6 +13,7 @@ class VehicleCard extends StatelessWidget {
 
   const VehicleCard({
     Key? key,
+    required this.vehicleId, // Terima vehicleId di konstruktor
     required this.name,
     required this.color,
     required this.price,
@@ -17,8 +21,41 @@ class VehicleCard extends StatelessWidget {
     required this.status,
   }) : super(key: key);
 
+  Future<void> deleteVehicle(String vehicleId, CookieRequest request, BuildContext context) async {
+    try {
+      // Memanggil endpoint API DELETE
+      final response = await request.get(
+        'http://127.0.0.1:8000/delete_vehicle_flutter/$vehicleId/',
+      );
+
+      if (response["message"]=="Vehicle deleted successfully") {
+        // Jika penghapusan berhasil (status 200)
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Kendaraan berhasil dihapus'),
+          backgroundColor: Colors.green,
+        ));
+        Navigator.pop(context); // Kembali ke halaman sebelumnya setelah delete
+      } else {
+        // Jika ada masalah dengan request
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Gagal menghapus kendaraan'),
+          backgroundColor: Colors.red,
+        ));
+      }
+    } catch (error) {
+      // Tangani error jika koneksi gagal
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Terjadi kesalahan: $error'),
+        backgroundColor: Colors.red,
+      ));
+      print('Terjadi kesalahan: $error');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final CookieRequest request = CookieRequest(); // Inisialisasi CookieRequest
+
     return Card(
       margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       shape: RoundedRectangleBorder(
@@ -98,11 +135,11 @@ class VehicleCard extends StatelessWidget {
                       child: ElevatedButton(
                         onPressed: () {
                           Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => EditVehiclePage(),
-                        ),
-                      );
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EditVehiclePage(vehicleId: vehicleId), // Pass vehicleId here
+                            ),
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color(0xFF387478),
@@ -123,7 +160,8 @@ class VehicleCard extends StatelessWidget {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
-                          // Handle Delete
+                          // Panggil fungsi delete
+                          deleteVehicle(vehicleId, request, context);
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color(0xFF832424),

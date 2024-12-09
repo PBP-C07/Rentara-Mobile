@@ -122,6 +122,7 @@ class _ListProductPageState extends State<ListProductPage> {
                       final vehicle = vehicles[index];
                       final fields = vehicle.fields;
                       return VehicleCard(
+                        vehicleId: vehicle.pk,
                         name: fields.tipe,
                         color: fields.warna,
                         price: fields.harga.toString(),
