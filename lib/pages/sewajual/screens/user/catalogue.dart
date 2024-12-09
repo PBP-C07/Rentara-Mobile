@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
@@ -192,6 +192,20 @@ class _CarCatalogueScreenState extends State<CarCatalogueScreen> {
                                                       height: 200,
                                                       width: double.infinity,
                                                       fit: BoxFit.cover,
+                                                      errorBuilder: (context,
+                                                          error, stackTrace) {
+                                                        return Container(
+                                                          height: 200,
+                                                          color:
+                                                              Colors.grey[200],
+                                                          child: const Center(
+                                                            child: Icon(
+                                                                Icons
+                                                                    .error_outline,
+                                                                size: 40),
+                                                          ),
+                                                        );
+                                                      },
                                                     ),
                                                   ),
                                                   Padding(
@@ -207,18 +221,32 @@ class _CarCatalogueScreenState extends State<CarCatalogueScreen> {
                                                           mainAxisAlignment:
                                                               MainAxisAlignment
                                                                   .spaceBetween,
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
                                                           children: [
-                                                            Text(
-                                                              '${vehicle.fields.merk} ${vehicle.fields.tipe}',
-                                                              style:
-                                                                  const TextStyle(
-                                                                fontSize: 18,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
+                                                            Expanded(
+                                                              flex: 2,
+                                                              child: Text(
+                                                                '${vehicle.fields.merk} ${vehicle.fields.tipe}',
+                                                                style:
+                                                                    const TextStyle(
+                                                                  fontSize: 18,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                ),
+                                                                maxLines: 2,
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
                                                               ),
                                                             ),
                                                             Container(
+                                                              margin:
+                                                                  const EdgeInsets
+                                                                      .only(
+                                                                      left: 8),
                                                               padding:
                                                                   const EdgeInsets
                                                                       .symmetric(
@@ -235,7 +263,10 @@ class _CarCatalogueScreenState extends State<CarCatalogueScreen> {
                                                                             20),
                                                               ),
                                                               child: Text(
-                                                                'Rp ${vehicle.fields.harga}',
+                                                                formatPrice(
+                                                                    vehicle
+                                                                        .fields
+                                                                        .harga),
                                                                 style:
                                                                     const TextStyle(
                                                                   color: Colors
@@ -243,6 +274,7 @@ class _CarCatalogueScreenState extends State<CarCatalogueScreen> {
                                                                   fontWeight:
                                                                       FontWeight
                                                                           .bold,
+                                                                  fontSize: 13,
                                                                 ),
                                                               ),
                                                             ),
@@ -257,6 +289,8 @@ class _CarCatalogueScreenState extends State<CarCatalogueScreen> {
                                                                 .grey[600],
                                                             fontSize: 14,
                                                           ),
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
                                                         ),
                                                         const SizedBox(
                                                             height: 12),
@@ -325,5 +359,14 @@ class _CarCatalogueScreenState extends State<CarCatalogueScreen> {
         ),
       ],
     );
+  }
+
+  String formatPrice(int price) {
+    final formatCurrency = NumberFormat.currency(
+      locale: 'id_ID',
+      symbol: 'Rp ',
+      decimalDigits: 0,
+    );
+    return formatCurrency.format(price);
   }
 }
