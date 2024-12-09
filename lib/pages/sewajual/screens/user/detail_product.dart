@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
-import '../../widgets/user/car_featured_item.dart';
+import '../../models/vehicle_model.dart';
 import '../../widgets/user/drawer_price.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class CarDetailScreen extends StatelessWidget {
+  final VehicleEntry vehicle;
+
+  const CarDetailScreen({Key? key, required this.vehicle}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,13 +23,17 @@ class CarDetailScreen extends StatelessWidget {
                     children: [
                       Container(
                         height: 250,
-                        color: Colors.grey[300],
+                        width: double.infinity,
+                        child: Image.network(
+                          vehicle.fields.linkFoto,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                       Positioned(
                         top: 16,
                         left: 16,
                         child: Container(
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
                           ),
@@ -38,7 +47,7 @@ class CarDetailScreen extends StatelessWidget {
                         top: 16,
                         right: 16,
                         child: Container(
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
                           ),
@@ -58,32 +67,34 @@ class CarDetailScreen extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
-                              'Mercedes Benz CLS',
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
+                            Expanded(
+                              child: Text(
+                                '${vehicle.fields.merk} ${vehicle.fields.tipe}',
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                             ElevatedButton(
                               onPressed: () {},
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xFF2B6777),
+                                backgroundColor: const Color(0xFF2B6777),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                               ),
                               child: const Text(
-                              'RENT',
-                              style: TextStyle(
-                                color: Colors.white,
+                                'RENT',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
                               ),
-                            ),
                             ),
                           ],
                         ),
                         Row(
-                          children: [
+                          children: const [
                             Icon(Icons.star, color: Colors.amber, size: 20),
                             Text(' 4.5 (20 reviews)'),
                           ],
@@ -100,17 +111,14 @@ class CarDetailScreen extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            FeatureItem(
-                              title: 'Red',
+                            _buildFeatureItem(
+                              title: vehicle.fields.warna,
                               icon: Icons.palette,
                             ),
-                            FeatureItem(
-                              title: 'Gasoline\n11.2 km/L',
+                            _buildFeatureItem(
+                              title: bahanBakarValues
+                                  .reverse[vehicle.fields.bahanBakar]!,
                               icon: Icons.local_gas_station,
-                            ),
-                            FeatureItem(
-                              title: '4 Seater',
-                              icon: Icons.event_seat,
                             ),
                           ],
                         ),
@@ -124,7 +132,8 @@ class CarDetailScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 16),
                         Container(
-                          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 12, horizontal: 16),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(8),
@@ -133,7 +142,7 @@ class CarDetailScreen extends StatelessWidget {
                                 color: Colors.grey.withOpacity(0.1),
                                 spreadRadius: 1,
                                 blurRadius: 4,
-                                offset: Offset(0, 1),
+                                offset: const Offset(0, 1),
                               ),
                             ],
                           ),
@@ -142,25 +151,25 @@ class CarDetailScreen extends StatelessWidget {
                               Row(
                                 children: [
                                   Icon(Icons.store, color: Colors.grey[700]),
-                                  SizedBox(width: 12),
+                                  const SizedBox(width: 12),
                                   Text(
-                                    'Arka Bike',
-                                    style: TextStyle(
+                                    vehicle.fields.toko,
+                                    style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
                                 ],
                               ),
-                              Divider(height: 24),
+                              const Divider(height: 24),
                               InkWell(
-                                onTap: () {
-                                },
+                                onTap: () {},
                                 child: Row(
                                   children: [
-                                    Icon(Icons.location_on, color: Colors.grey[700]),
-                                    SizedBox(width: 12),
-                                    Text(
+                                    Icon(Icons.location_on,
+                                        color: Colors.grey[700]),
+                                    const SizedBox(width: 12),
+                                    const Text(
                                       'View Location',
                                       style: TextStyle(
                                         fontSize: 16,
@@ -185,9 +194,10 @@ class CarDetailScreen extends StatelessWidget {
               right: 0,
               child: Container(
                 height: 40,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   image: DecorationImage(
-                    image: NetworkImage('https://static.vecteezy.com/system/resources/previews/001/214/732/original/black-and-yellow-stripes-pattern-vector.jpg'),
+                    image: NetworkImage(
+                        'https://static.vecteezy.com/system/resources/previews/001/214/732/original/black-and-yellow-stripes-pattern-vector.jpg'),
                     repeat: ImageRepeat.repeatX,
                   ),
                 ),
@@ -198,15 +208,45 @@ class CarDetailScreen extends StatelessWidget {
               left: 0,
               right: 0,
               child: BottomPriceDrawer(
-                price: 'Rp 750.000/day',
-                onContactPressed: () {
-                  print('Contact button pressed');
+                price: 'Rp ${vehicle.fields.harga}/day',
+                onContactPressed: () async {
+                  final url =
+                      'https://wa.me/${vehicle.fields.notelp.replaceAll(RegExp(r'[^\d+]'), '')}';
+                  if (await canLaunchUrl(Uri.parse(url))) {
+                    await launchUrl(Uri.parse(url));
+                  } else {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Couldn't launch WhatsApp"),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  }
                 },
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildFeatureItem({required String title, required IconData icon}) {
+    return Column(
+      children: [
+        Icon(icon, size: 24, color: Colors.grey[700]),
+        const SizedBox(height: 8),
+        Text(
+          title,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Colors.grey[600],
+            fontSize: 14,
+          ),
+        ),
+      ],
     );
   }
 }
