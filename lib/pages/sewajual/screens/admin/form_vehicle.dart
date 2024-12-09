@@ -438,6 +438,16 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                                 onPressed: () async {
                                   if (_formKey.currentState!.validate()) {
                                     try {
+                                      showDialog(
+                                        context: context,
+                                        barrierDismissible: false,
+                                        builder: (BuildContext context) {
+                                          return const Center(
+                                            child: CircularProgressIndicator(),
+                                          );
+                                        },
+                                      );
+
                                       final response = await request.postJson(
                                         "http://127.0.0.1:8000/vehicle/create-flutter/",
                                         jsonEncode({
@@ -460,6 +470,10 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                                       );
 
                                       if (context.mounted) {
+                                        Navigator.of(context).pop();
+                                      }
+
+                                      if (context.mounted) {
                                         if (response['status'] == 'success') {
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(
@@ -469,28 +483,50 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                                               backgroundColor: Colors.green,
                                             ),
                                           );
+
                                           _formKey.currentState!.reset();
-                                          Navigator.pop(context);
+                                          setState(() {
+                                            _vehicleType = JenisKendaraan.MOBIL;
+                                            _status = Status.SEWA;
+                                            _fuelType = BahanBakar.BENSIN;
+                                            _photoLink = '';
+                                          });
+
+                                          if (context.mounted &&
+                                              Navigator.of(context).canPop()) {
+                                            Navigator.of(context).pop();
+                                          } else {
+                                            Navigator.pushReplacementNamed(
+                                                context, '/vehicles/adm/');
+                                          }
                                         } else {
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(
-                                            const SnackBar(
-                                              content: Text(
-                                                  "Error occurred. Try again."),
+                                            SnackBar(
+                                              content: Text(response[
+                                                      'message'] ??
+                                                  "Error occurred. Please try again."),
                                               backgroundColor: Colors.red,
                                             ),
                                           );
                                         }
                                       }
                                     } catch (e) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                          content:
-                                              Text("Error: ${e.toString()}"),
-                                          backgroundColor: Colors.red,
-                                        ),
-                                      );
+                                      if (context.mounted &&
+                                          Navigator.of(context).canPop()) {
+                                        Navigator.of(context).pop();
+                                      }
+
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            content:
+                                                Text("Error: ${e.toString()}"),
+                                            backgroundColor: Colors.red,
+                                          ),
+                                        );
+                                      }
                                     }
                                   }
                                 },
