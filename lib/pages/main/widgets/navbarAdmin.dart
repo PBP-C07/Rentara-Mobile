@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../joinpartner/screens/customer/profile.dart';
 import '../../joinpartner/screens/admin/managePartner.dart';
-import '../../sewajual/screens/user/catalogue.dart';
-import '../../main/screens/home.dart';
 import '../../sewajual/screens/admin/form_vehicle.dart';
 import '../../sewajual/screens/admin/catalgoue_admin.dart';
 
@@ -56,7 +54,20 @@ class NavBarBottomAdmin extends StatelessWidget {
                 );
               },
             ),
-            const Icon(Icons.add_box_rounded, color: Colors.white),
+            IconButton(
+              icon: const Icon(Icons.add_box_rounded, color: Colors.white),
+              onPressed: () {
+                Navigator.of(context).pushAndRemoveUntil(
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation1, animation2) =>
+                        VehicleEntryFormPage(),
+                    transitionDuration: Duration.zero,
+                    reverseTransitionDuration: Duration.zero,
+                  ),
+                  (route) => false,
+                );
+              },
+            ),
             const Icon(Icons.drive_eta_outlined, color: Colors.white),
             IconButton(
               icon: const Icon(Icons.person_outline, color: Colors.white),
