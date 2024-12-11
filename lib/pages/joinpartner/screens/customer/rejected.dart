@@ -1,77 +1,169 @@
 import 'package:flutter/material.dart';
 import 'registerPartner.dart'; // Import RegisterPartnerPage to navigate back for re-registration
-import '../../../main/widgets/navbar.dart'; // Assuming NavBarBottom is located here
+import '../../../main/widgets/navbar.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 
-class RejectedPage extends StatelessWidget {
+class RejectedPage extends StatefulWidget {
   const RejectedPage({super.key});
+
+  @override
+  State<RejectedPage> createState() => _RejectedPageState();
+}
+
+class _RejectedPageState extends State<RejectedPage> {
+  String? partnerId;
+
+  @override
+  void initState() {
+    super.initState();
+    final CookieRequest request = Provider.of<CookieRequest>(context, listen: false);
+    _fetchPartnerData(request);
+  }
+
+  // Fetch data partner
+  void _fetchPartnerData(CookieRequest request) async {
+    try {
+      final response = await request.get('http://127.0.0.1:8000/get_partner/');
+      print(response);
+
+      if (response is Map<String, dynamic> && response['status'] == 'Rejected') {
+        setState(() {
+          partnerId = response['id'].toString();
+        });
+      } else {
+        throw Exception('Unexpected response format: $response');
+      }
+    } catch (e) {
+      print('Error fetching partner data: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load partner data: ${e.toString()}')),
+      );
+    }
+  }
+
+  // Hapus partner berdasarkan ID
+  void _deletePartner(BuildContext context, CookieRequest request, String partnerId) async {
+    try {
+      final response = await request.get(
+        'http://127.0.0.1:8000/delete_partner_flutter/$partnerId/',
+      );
+
+      if (response["message"] == "Partner deleted successfully") {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: const Text('Partner berhasil dihapus', style: TextStyle(color: Colors.white)),
+          backgroundColor: const Color(0xFF629584),
+        ));
+        Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: const Text('Gagal menghapus partner'),
+          backgroundColor: const Color(0xFF832424),
+        ));
+      }
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Terjadi kesalahan: $error'),
+        backgroundColor: const Color(0xFF832424),
+      ));
+      print('Terjadi kesalahan: $error');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
+    final request = Provider.of<CookieRequest>(context, listen: false);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F9), // Light background
-      body: Stack(
+      backgroundColor: const Color(0xFFF9F9F9),
+      body: Column(
         children: [
-          SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: MediaQuery.of(context).size.height * 0.2), // Add spacing from top
-                  const Text(
-                    'Oops! Akun Anda belum disetujui oleh admin.',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF2D524C),
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Jangan khawatir! Silakan coba lagi untuk mendaftar. Kami siap menyambut Anda!',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Color(0xFF7B8F8E),
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 30),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const RegisterPartnerPage(),
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF5F8D6C), // Green button color
-                      fixedSize: Size(screenWidth * 0.8, 50),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.2),
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF5F8D6C),
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          const Text(
+                            'Oops! Akun Anda belum disetujui oleh admin.',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 16),
+                          const Text(
+                            'Jangan khawatir! Silakan coba lagi untuk mendaftar. Kami siap menyambut Anda!',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 30),
+                          Center(
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const RegisterPartnerPage(),
+                                  ),
+                                );
+
+                                // Fetch data dan hapus partner jika ada
+                                if (partnerId != null) {
+                                  _deletePartner(context, request, partnerId!);
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Partner ID not found!')),
+                                  );
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                fixedSize: Size(screenWidth * 0.8, 50),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: const Text(
+                                'Mendaftar Kembali',
+                                style: TextStyle(fontSize: 16, color: Color(0xFF5F8D6C)),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    child: const Text(
-                      'Mendaftar Kembali',
-                      style: TextStyle(fontSize: 16, color: Colors.white),
-                    ),
-                  ),
-                  const SizedBox(height: 50), // Add spacing to avoid overlapping with NavBar
-                ],
+                    const SizedBox(height: 50),
+                  ],
+                ),
               ),
             ),
           ),
-          const Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: NavBarBottom(),
-          ),
+          const NavBarBottom(),
         ],
       ),
     );

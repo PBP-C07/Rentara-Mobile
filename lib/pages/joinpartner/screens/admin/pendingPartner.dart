@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../../../main/widgets/navbarAdmin.dart'; // Assuming NavBarBottom is located here
+import 'package:provider/provider.dart';
+import 'package:rentara_mobile/pages/joinpartner/widgets/admin/partnerCard.dart';
+import '../../../main/widgets/navbarAdmin.dart';
 import '../../models/Partner.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
 
 void main() {
   runApp(const PendingPartnerApp());
@@ -16,16 +19,16 @@ class PendingPartnerApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primaryColor: const Color(0xFF387478), // Warna utama
+        primaryColor: const Color(0xFF387478),
         fontFamily: 'Poppins',
       ),
       home: Scaffold(
         appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(100.0), // Height for the app bar
+          preferredSize: const Size.fromHeight(100.0),
           child: AppBar(
-            backgroundColor: const Color(0xFF387478), // Warna utama
+            backgroundColor: const Color(0xFF387478),
             title: const Padding(
-              padding: EdgeInsets.only(top: 30), // Padding for top space
+              padding: EdgeInsets.only(top: 30),
               child: Text(
                 'PENDING PARTNER',
                 style: TextStyle(
@@ -39,10 +42,6 @@ class PendingPartnerApp extends StatelessWidget {
             elevation: 0,
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
-            ),
-            bottom: PreferredSize(
-              preferredSize: Size.fromHeight(10.0), // Extra space below app bar
-              child: Container(),
             ),
           ),
         ),
@@ -61,64 +60,69 @@ class PendingPartnerScreen extends StatefulWidget {
 }
 
 class _PendingPartnerScreenState extends State<PendingPartnerScreen> {
-  List<Partner> pendingPartners = [];
-  List<Partner> filteredPartners = [];
-  String searchQuery = '';
-  List<Partner> get pendingPartnersList => pendingPartners;
-
-  // Getter untuk menghitung jumlah partner pending
-  int get totalPending => pendingPartnersList.length;
+  List<Partner> _pendingPartners = [];
+  List<Partner> _filteredPartners = [];
+  String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
-    fetchPartners().then((partners) {
-      setState(() {
-        pendingPartners = partners;
-        filteredPartners = partners;
-      });
-    });
+    final request = Provider.of<CookieRequest>(context, listen: false);
+    _fetchPartners(request);
   }
 
-  Future<List<Partner>> fetchPartners() async {
-    final response = await http.get(Uri.parse('http://127.0.0.1:8000/partner_json/'));
-
-    if (response.statusCode == 200) {
-      List<dynamic> data = json.decode(response.body);
-      List<Partner> partners = data.map((json) => Partner.fromJson(json)).toList();
-      pendingPartners = partners.where((partner) => partner.fields.status == 'pending').toList();
-      return pendingPartners;
-    } else {
-      throw Exception('Failed to load partners');
+  Future<void> _fetchPartners(CookieRequest request) async {
+    try {
+      final response = await request.get('http://127.0.0.1:8000/partner_json/');
+      if (response is List) {
+        List<Partner> partners =
+            response.map((json) => Partner.fromJson(json)).toList();
+        setState(() {
+          _pendingPartners =
+              partners.where((partner) => partner.fields.status == 'Pending').toList();
+          _filteredPartners = _pendingPartners;
+        });
+      } else {
+        throw Exception('Unexpected response format: Expected a list but got ${response.runtimeType}');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error fetching partners: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
-  void updateSearchQuery(String query) {
+  void _filterPartners(String query) {
     setState(() {
-      searchQuery = query.toLowerCase();
-      filteredPartners = pendingPartners
-          .where((partner) =>
-              partner.fields.toko.toLowerCase().contains(searchQuery) ||
-              partner.fields.linkLokasi.toLowerCase().contains(searchQuery) ||
-              partner.fields.notelp.contains(searchQuery))
-          .toList();
+      _searchQuery = query.toLowerCase();
+      _filteredPartners = _pendingPartners.where((partner) {
+        return partner.fields.toko.toLowerCase().contains(_searchQuery) ||
+            partner.fields.linkLokasi.toLowerCase().contains(_searchQuery) ||
+            partner.fields.notelp.contains(_searchQuery);
+      }).toList();
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final double cardWidth = MediaQuery.of(context).size.width * 0.9; // 90% of screen width
+    final double cardHeight = MediaQuery.of(context).size.height * 0.25; // 25% of screen height
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
-          // Search bar for filtering partners
+          // Search bar
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: TextField(
-              onChanged: updateSearchQuery,
+              onChanged: _filterPartners,
               decoration: InputDecoration(
                 filled: true,
-                fillColor: const Color(0xFFFAFAFA), // Warna latar belakang input
+                fillColor: const Color(0xFFFAFAFA),
                 hintText: 'Search pending partner',
                 hintStyle: const TextStyle(color: Colors.grey),
                 prefixIcon: const Icon(Icons.search, color: Color(0xFF387478)),
@@ -130,21 +134,25 @@ class _PendingPartnerScreenState extends State<PendingPartnerScreen> {
             ),
           ),
           const SizedBox(height: 16),
+          // ListView for displaying partners
           Expanded(
-            child: GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                childAspectRatio: 1.2,
-              ),
-              itemCount: filteredPartners.length,
+            child: ListView.builder(
+              itemCount: _filteredPartners.length,
               itemBuilder: (context, index) {
-                final partner = filteredPartners[index];
-                return PendingPartnerCard(
-                  name: partner.fields.toko,
-                  address: partner.fields.linkLokasi,
-                  phone: partner.fields.notelp,
+                final partner = _filteredPartners[index];
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 16.0),
+                  child: SizedBox(
+                    width: cardWidth,
+                    height: cardHeight,
+                    child: PendingPartnerCard(
+                      id: partner.pk,
+                      name: partner.fields.toko,
+                      address: partner.fields.linkLokasi,
+                      phone: partner.fields.notelp,
+                      status: partner.fields.status,
+                    ),
+                  ),
                 );
               },
             ),
@@ -159,20 +167,65 @@ class PendingPartnerCard extends StatelessWidget {
   final String name;
   final String address;
   final String phone;
+  final String id;
+  final String status;
 
   const PendingPartnerCard({
     super.key,
     required this.name,
     required this.address,
     required this.phone,
+    required this.id,
+    required this.status,
   });
+
+  // Function to update the partner status and other details
+  Future<void> updatePartnerStatus(String newStatus, BuildContext context) async {
+    final request = Provider.of<CookieRequest>(context, listen: false);
+
+    // Prepare the data to send in the POST request
+    final data = {
+      'status': newStatus,
+      'toko': name, // assuming `name` is the store name (toko)
+      'notelp': phone, // phone number
+      'link_lokasi': address, // store location link
+    };
+
+    try {
+      // Send the POST request to update the partner's data
+      final response = await request.post(
+        'http://127.0.0.1:8000/edit_partner_flutter/$id/', jsonEncode(data), // Use jsonEncode for encoding data
+      );
+      print('Response status: ${response['status']}');
+      print('Response body: $response');
+
+      if (response['status'] == 'success') {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(response['message']),
+            backgroundColor: const Color(0xFF387478),
+          ));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: const Text('Failed to update partner.'),
+          backgroundColor: Colors.red,
+        ));
+      }
+    } catch (error) {
+      print(error);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        
+        content: Text('Error: $error'),
+        backgroundColor: const Color(0xFF832424),
+      ));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(4),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: const Color(0xFFFAFAFA), // Background color for the card
+        color: const Color(0xFFFAFAFA),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -185,104 +238,72 @@ class PendingPartnerCard extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Partner name with a different background color
+          // Partner's Name
           Container(
-            width: double.infinity, // Full width of the card
-            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
             decoration: BoxDecoration(
-              color: const Color(0xFF387478), // Light green background for name
+              color: const Color(0xFF387478),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
               name,
               style: const TextStyle(
-                fontWeight: FontWeight.w600, // Semi-bold
+                fontWeight: FontWeight.w600,
                 fontSize: 16,
-                color: Colors.white, // White text
+                color: Colors.white,
               ),
               textAlign: TextAlign.center,
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          const SizedBox(height: 4),
-          // Address and Phone number with matching Container widths
+          const SizedBox(height: 8),
+          // Address and Phone
           Column(
             children: [
-              Container(
-                width: double.infinity, // Full width of the card
-                padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF2F4F4F), // Dark green container
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  address,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600, // Semi-bold
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
+              Text(address, style: const TextStyle(fontWeight: FontWeight.w500)),
               const SizedBox(height: 8),
-              Container(
-                width: double.infinity, // Full width of the card
-                padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF2F4F4F), // Dark green container
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  phone,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600, // Semi-bold
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
+              Text(phone, style: const TextStyle(fontWeight: FontWeight.w500)),
             ],
           ),
           const SizedBox(height: 8),
-          // Accept/Reject buttons inside Expanded widgets
-          Flexible(
-            child: Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF832424), // Red color for reject button
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: const Text(
-                      'Reject',
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+          // Action buttons
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Reject button: Set status to 'Rejected'
+                    updatePartnerStatus('Rejected', context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF832424),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
                     ),
                   ),
+                  child: const Text('Reject', style: TextStyle(color: Colors.white)),
                 ),
-                const SizedBox(width: 3), // Space between buttons
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF387478), // Main color for accept button
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: const Text(
-                      'Accept',
-                      style: TextStyle(color: Colors.white),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Accept button: Set status to 'Accepted'
+                    updatePartnerStatus('Approved', context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF387478),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
                     ),
                   ),
+                  child: const Text('Accept', style: TextStyle(color: Colors.white)),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),

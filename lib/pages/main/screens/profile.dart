@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:rentara_mobile/pages/joinpartner/screens/customer/listProduct.dart';
+import 'package:rentara_mobile/pages/joinpartner/screens/customer/pending.dart';
 import 'package:rentara_mobile/pages/joinpartner/screens/customer/registerPartner.dart';
+import 'package:rentara_mobile/pages/joinpartner/screens/customer/rejected.dart';
 import 'package:rentara_mobile/pages/main/screens/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'login.dart';
@@ -324,39 +326,86 @@ class _ProfilePageState extends State<ProfilePage> {
                       InkWell(
                         onTap: () async {
                           try {
-  bool isPartner = await checkPartnerStatus(request);
-  print('isPartner status: $isPartner'); // Debugging output
-
-  if (isPartner) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ListProductPage(),
-      ),
-    );
-  } else {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => RegisterPartnerApp(),
-      ),
-    );
-  }
-} catch (e) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text('Error: $e'),
-      backgroundColor: Colors.red,
-    ),
-  );
-}
+                            final response = await request.get('http://127.0.0.1:8000/check_status/');
+                            bool isPartner = await checkPartnerStatus(request);
+                            // String status = response['status'];
+                            print(response);
+                            // print('isPartner status: $isPartner'); // Debugging output
+                            if (isPartner && response['status']=='Approved') {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ListProductPage(),
+                                ),
+                              );
+                            } 
+                            else if (isPartner && response['status']=='Pending'){
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const PendingPageApp(),
+                                ),
+                              );
+                            } 
+                            else if (isPartner && response['status']=='Rejected'){
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const RejectedPage(),
+                                ),
+                              );
+                            } 
+                            else {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const RegisterPartnerApp(),
+                                ),
+                              );
+                            }
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Error: $e'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
 
                         },
                                                 
                         child: _buildMenuItem('Join Partner', Icons.handshake),
                       ),
                       InkWell(
-                        onTap: () {},
+                        onTap: () async {
+                          try{
+                            bool isPartner = await checkPartnerStatus(request);
+                            if (isPartner) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ListProductPage(),
+                                ),
+                              );
+                            } 
+                            else{
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => RegisterPartnerApp(),
+                                ),
+                              );
+                            }
+                          }
+                          catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Error: $e'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        },
                         child:
                             _buildMenuItem('My Products', Icons.shopping_bag),
                       ),

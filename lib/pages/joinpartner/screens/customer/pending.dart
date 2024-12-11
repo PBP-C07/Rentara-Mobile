@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rentara_mobile/pages/main/screens/profile.dart';
 import '../../../main/widgets/navbar.dart'; // Assuming NavBarBottom is located here
 
 void main() {
@@ -90,7 +91,11 @@ class PendingPage extends StatelessWidget {
                     // OK Button
                     ElevatedButton(
                       onPressed: () {
-                        Navigator.of(context).popUntil((route) => route.isFirst);
+                        // Navigate to ProfilePage and remove all other routes until it
+                        Navigator.popUntil(
+                          context,
+                          ModalRoute.withName('/profile'), // Replace '/profile' with your named route
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white, // White button color

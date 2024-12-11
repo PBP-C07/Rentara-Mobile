@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 
 class PartnerCard extends StatelessWidget {
+  final String partnerId;
   final String toko;
   final String linkLokasi;
   final String notelp;
@@ -13,10 +16,45 @@ class PartnerCard extends StatelessWidget {
     required this.linkLokasi,
     required this.notelp,
     required this.status,
+    required this.partnerId,
   }) : super(key: key);
+
+  static Future<void> deletePartner(String partnerId, CookieRequest request, BuildContext context) async {
+    try {
+      // Memanggil endpoint API DELETE
+      final response = await request.get(
+        'http://127.0.0.1:8000/delete_partner_flutter/$partnerId/',
+      );
+      print(response);
+
+      if (response["message"]=="Partner deleted successfully") {
+        // Jika penghapusan berhasil (status 200)
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Partner berhasil dihapus', style: 
+          TextStyle(color: Colors.white)),
+          backgroundColor: Color(0xFF629584),
+        ));
+        Navigator.pop(context); // Kembali ke halaman sebelumnya setelah delete
+      } else {
+        // Jika ada masalah dengan request
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Gagal menghapus partner'),
+          backgroundColor: Color(0xFF832424),
+        ));
+      }
+    } catch (error) {
+      // Tangani error jika koneksi gagal
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Terjadi kesalahan: $error'),
+        backgroundColor: Color(0xFF832424),
+      ));
+      print('Terjadi kesalahan: $error');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final CookieRequest request = CookieRequest();
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -66,8 +104,7 @@ class PartnerCard extends StatelessWidget {
                 ),
                 child: IconButton(
                   onPressed: () {
-                    // Add your delete function here
-                    print('Delete button pressed');
+                    deletePartner(partnerId, request, context);
                   },
                   icon: const Icon(Icons.delete, color: Colors.white),
                 ),

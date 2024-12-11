@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:provider/provider.dart';
 import 'pending.dart'; // Import the PendingPage
 import '../../../main/widgets/navbar.dart'; // Assuming NavBarBottom is located here
+import 'package:pbp_django_auth/pbp_django_auth.dart';
 
 void main() {
   runApp(const RegisterPartnerApp());
@@ -33,7 +36,7 @@ class _RegisterPartnerPageState extends State<RegisterPartnerPage> {
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
 
-  void _registerPartner() {
+  Future<void> _registerPartner() async {
     String storeName = _storeNameController.text;
     String address = _addressController.text;
     String phoneNumber = _phoneNumberController.text;
@@ -45,17 +48,48 @@ class _RegisterPartnerPageState extends State<RegisterPartnerPage> {
           backgroundColor: Colors.red,
         ),
       );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Partner registered successfully!'),
-          backgroundColor: Colors.green,
-        ),
+      return;
+    }
+
+    final partnerData = {
+      'store_name': storeName,
+      'address': address,
+      'phone_number': phoneNumber,
+    };
+
+    try {
+      final CookieRequest request = Provider.of<CookieRequest>(context, listen: false);
+      final response = await request.post(
+        'http://127.0.0.1:8000/create_partner_flutter/',
+        jsonEncode(partnerData),
       );
 
-      _storeNameController.clear();
-      _addressController.clear();
-      _phoneNumberController.clear();
+      if (response['status'] == 'success') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Partner registered successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        _storeNameController.clear();
+        _addressController.clear();
+        _phoneNumberController.clear();
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const PendingPage()),
+        );
+      } else {
+        throw Exception(response['message'] ?? 'Unknown error');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to register partner: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -69,10 +103,10 @@ class _RegisterPartnerPageState extends State<RegisterPartnerPage> {
         children: [
           SingleChildScrollView(
             child: SizedBox(
-              height: MediaQuery.of(context).size.height, // Full height of the screen
+              height: MediaQuery.of(context).size.height,
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center, // Center vertically
-                crossAxisAlignment: CrossAxisAlignment.start, // Align text to the left
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -133,14 +167,7 @@ class _RegisterPartnerPageState extends State<RegisterPartnerPage> {
                           child: Column(
                             children: [
                               ElevatedButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const PendingPage(),
-                                    ),
-                                  );
-                                },
+                                onPressed: _registerPartner,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF5F8D6C),
                                   fixedSize: Size(screenWidth * 0.8, 50),
@@ -180,7 +207,7 @@ class _RegisterPartnerPageState extends State<RegisterPartnerPage> {
               ),
             ),
           ),
-          Align(
+          const Align(
             alignment: Alignment.bottomCenter,
             child: NavBarBottom(),
           ),

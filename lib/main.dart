@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:rentara_mobile/pages/main/screens/profile.dart';
 import 'pages/main/screens/home.dart';
 
 void main() {
@@ -45,6 +46,10 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
+      initialRoute: '/', // Default route to start with
+      routes: {
+        '/profile': (context) => const ProfilePage(), // Named route for ProfilePage
+      },
       home: const MyHomePage(),
     );
   }
