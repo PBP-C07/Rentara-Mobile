@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:rentara_mobile/pages/joinpartner/screens/admin/listPartner.dart';
 import 'package:rentara_mobile/pages/joinpartner/screens/admin/pendingPartner.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:rentara_mobile/pages/main/screens/home.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../main/widgets/navbarAdmin.dart'; // Assuming NavBarBottom is located here
 
 void main() {
@@ -36,7 +40,7 @@ class ManagePartnerApp extends StatelessWidget {
           ),
         ),
         body: const ManagePartnerScreen(),
-        bottomNavigationBar: NavBarBottomAdmin(),
+        bottomNavigationBar:NavBarBottomAdmin(),
       ),
     );
   }
@@ -44,11 +48,11 @@ class ManagePartnerApp extends StatelessWidget {
 
 class ManagePartnerScreen extends StatelessWidget {
   const ManagePartnerScreen({super.key});
-  
-  
 
   @override
   Widget build(BuildContext context) {
+    final request = Provider.of<CookieRequest>(context, listen: false);
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -155,6 +159,71 @@ class ManagePartnerScreen extends StatelessWidget {
                   },
                 ),
               ],
+            ),
+          ),
+          Container(
+            width: double.infinity,
+            height: 50,
+            margin: const EdgeInsets.only(bottom: 20),
+            child: ElevatedButton(
+              onPressed: () async {
+                try {
+                  final response = await request.logout(
+                    "http://127.0.0.1:8000/auth/logout/",
+                  );
+                  if (response['status'] == true) {
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.clear();
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(response['message']),
+                          backgroundColor: const Color(0xFF557B83),
+                        ),
+                      );
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const MyHomePage(),
+                        ),
+                        (Route<dynamic> route) => false,
+                      );
+                    }
+                  } else {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Logout gagal"),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text("Terjadi kesalahan: $e"),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF8B4545),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text(
+                'Logout',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
             ),
           ),
         ],

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../joinpartner/screens/customer/profile.dart';
 import '../../joinpartner/screens/admin/managePartner.dart';
 import '../../sewajual/screens/admin/form_vehicle.dart';
 import '../../sewajual/screens/admin/catalgoue_admin.dart';

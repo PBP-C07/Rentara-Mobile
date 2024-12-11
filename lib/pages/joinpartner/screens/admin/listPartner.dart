@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'dart:convert'; // Untuk konversi JSON
 import 'package:rentara_mobile/pages/joinpartner/models/Partner.dart';
 import '../../../main/widgets/navbarAdmin.dart'; // Assuming NavBarBottom is located here
 import '../../widgets/admin/partnerCard.dart';
 import '../../models/Partner.dart';
+import 'package:provider/provider.dart';
 
 
 void main() {
@@ -48,23 +50,30 @@ class _PartnerListScreenState extends State<PartnerListScreen> {
   @override
   void initState() {
     super.initState();
-    futurePartners = fetchPartners();
+    final CookieRequest request = Provider.of<CookieRequest>(context, listen: false);
+    futurePartners = fetchPartners(request);
     searchController.addListener(_filterPartners);
   }
 
-  Future<List<Partner>> fetchPartners() async {
-    final response = await http.get(Uri.parse('http://127.0.0.1:8000/partner_json/'));
+  Future<List<Partner>> fetchPartners(CookieRequest request) async {
+  try {
+    final response = await request.get('http://127.0.0.1:8000/partner_json/');
 
-    if (response.statusCode == 200) {
-      List<dynamic> data = json.decode(response.body);
-      // Memfilter data hanya untuk status 'accepted'
-      List<Partner> partners = data.map((json) => Partner.fromJson(json)).toList();
-      allPartners = partners.where((partner) => partner.fields.status == 'Approved').toList();
+    // Pastikan tipe data response benar
+    if (response is List) {
+      // Memfilter data hanya untuk status 'Approved'
+      List<Partner> partners = response.map((json) => Partner.fromJson(json)).toList();
+      List<Partner> allPartners = partners.where((partner) => partner.fields.status == 'Approved').toList();
       return allPartners;
     } else {
-      throw Exception('Failed to load partners');
+      throw Exception('Unexpected response format: Expected a list but got ${response.runtimeType}');
     }
+  } catch (e) {
+    debugPrint('Error fetching partners: $e');
+    rethrow; // Mengirim ulang error agar dapat ditangani lebih lanjut
   }
+}
+
 
   void _filterPartners() {
     String query = searchController.text.toLowerCase();
@@ -146,6 +155,7 @@ class _PartnerListScreenState extends State<PartnerListScreen> {
                       itemBuilder: (context, index) {
                         final partner = partners[index];
                         return PartnerCard(
+                          partnerId: partner.pk,
                           toko: partner.fields.toko,
                           linkLokasi: partner.fields.linkLokasi,
                           notelp: partner.fields.notelp,
@@ -162,7 +172,7 @@ class _PartnerListScreenState extends State<PartnerListScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: NavBarBottomAdmin(),
+      bottomNavigationBar: const NavBarBottomAdmin(),
     );
   }
 
