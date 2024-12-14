@@ -340,7 +340,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               );
                             } 
                             else if (isPartner && response['status']=='Pending'){
-                              Navigator.push(
+                              Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => const PendingPageApp(),
@@ -348,7 +348,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               );
                             } 
                             else if (isPartner && response['status']=='Rejected'){
-                              Navigator.push(
+                              Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => const RejectedPage(),
@@ -379,8 +379,12 @@ class _ProfilePageState extends State<ProfilePage> {
                       InkWell(
                         onTap: () async {
                           try{
+                             final response = await request.get('http://127.0.0.1:8000/check_status/');
                             bool isPartner = await checkPartnerStatus(request);
-                            if (isPartner) {
+                            // String status = response['status'];
+                            print(response);
+                            // print('isPartner status: $isPartner'); // Debugging output
+                            if (isPartner && response['status']=='Approved') {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -388,11 +392,27 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                               );
                             } 
-                            else{
+                            else if (isPartner && response['status']=='Pending'){
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const PendingPageApp(),
+                                ),
+                              );
+                            } 
+                            else if (isPartner && response['status']=='Rejected'){
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => RegisterPartnerApp(),
+                                  builder: (context) => const RejectedPage(),
+                                ),
+                              );
+                            } 
+                            else {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const RegisterPartnerApp(),
                                 ),
                               );
                             }

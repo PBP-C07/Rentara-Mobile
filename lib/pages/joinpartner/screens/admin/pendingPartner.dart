@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:provider/provider.dart';
-import 'package:rentara_mobile/pages/joinpartner/widgets/admin/partnerCard.dart';
-import '../../../main/widgets/navbarAdmin.dart';
-import '../../models/Partner.dart';
+import 'dart:convert';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
+import '../../models/Partner.dart';
+import '../../../main/widgets/navbarAdmin.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() {
   runApp(const PendingPartnerApp());
@@ -108,9 +107,6 @@ class _PendingPartnerScreenState extends State<PendingPartnerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final double cardWidth = MediaQuery.of(context).size.width * 0.9; // 90% of screen width
-    final double cardHeight = MediaQuery.of(context).size.height * 0.25; // 25% of screen height
-
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -134,27 +130,22 @@ class _PendingPartnerScreenState extends State<PendingPartnerScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          // ListView for displaying partners
+          // ListView with Wrap
           Expanded(
-            child: ListView.builder(
-              itemCount: _filteredPartners.length,
-              itemBuilder: (context, index) {
-                final partner = _filteredPartners[index];
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 16.0),
-                  child: SizedBox(
-                    width: cardWidth,
-                    height: cardHeight,
-                    child: PendingPartnerCard(
-                      id: partner.pk,
-                      name: partner.fields.toko,
-                      address: partner.fields.linkLokasi,
-                      phone: partner.fields.notelp,
-                      status: partner.fields.status,
-                    ),
-                  ),
-                );
-              },
+            child: SingleChildScrollView(
+              child: Wrap(
+                spacing: 16,
+                runSpacing: 16,
+                children: _filteredPartners.map((partner) {
+                  return PendingPartnerCard(
+                    id: partner.pk,
+                    name: partner.fields.toko,
+                    address: partner.fields.linkLokasi,
+                    phone: partner.fields.notelp,
+                    status: partner.fields.status,
+                  );
+                }).toList(),
+              ),
             ),
           ),
         ],
@@ -179,44 +170,46 @@ class PendingPartnerCard extends StatelessWidget {
     required this.status,
   });
 
-  // Function to update the partner status and other details
   Future<void> updatePartnerStatus(String newStatus, BuildContext context) async {
     final request = Provider.of<CookieRequest>(context, listen: false);
-
-    // Prepare the data to send in the POST request
     final data = {
       'status': newStatus,
-      'toko': name, // assuming `name` is the store name (toko)
-      'notelp': phone, // phone number
-      'link_lokasi': address, // store location link
+      'toko': name,
+      'notelp': phone,
+      'link_lokasi': address,
     };
 
     try {
-      // Send the POST request to update the partner's data
       final response = await request.post(
-        'http://127.0.0.1:8000/edit_partner_flutter/$id/', jsonEncode(data), // Use jsonEncode for encoding data
+        'http://127.0.0.1:8000/edit_partner_flutter/$id/', jsonEncode(data),
       );
-      print('Response status: ${response['status']}');
-      print('Response body: $response');
 
       if (response['status'] == 'success') {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
             content: Text(response['message']),
             backgroundColor: const Color(0xFF387478),
-          ));
+          ),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const PendingPartnerApp()),
+        );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: const Text('Failed to update partner.'),
-          backgroundColor: Colors.red,
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to update partner.'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     } catch (error) {
-      print(error);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        
-        content: Text('Error: $error'),
-        backgroundColor: const Color(0xFF832424),
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $error'),
+          backgroundColor: const Color(0xFF832424),
+        ),
+      );
     }
   }
 
@@ -225,23 +218,23 @@ class PendingPartnerCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: const Color(0xFFFAFAFA),
+        color: const Color(0xFFF1F1F1), // Light background color
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
+            color: Colors.grey.withOpacity(0.2),
             spreadRadius: 2,
-            blurRadius: 5,
+            blurRadius: 8,
           ),
         ],
       ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisSize: MainAxisSize.min, // Adjust height based on content
         children: [
-          // Partner's Name
+          // Toko Name
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: const Color(0xFF387478),
               borderRadius: BorderRadius.circular(8),
@@ -249,31 +242,44 @@ class PendingPartnerCard extends StatelessWidget {
             child: Text(
               name,
               style: const TextStyle(
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.bold,
                 fontSize: 16,
                 color: Colors.white,
               ),
-              textAlign: TextAlign.center,
               overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
             ),
           ),
           const SizedBox(height: 8),
-          // Address and Phone
-          Column(
-            children: [
-              Text(address, style: const TextStyle(fontWeight: FontWeight.w500)),
-              const SizedBox(height: 8),
-              Text(phone, style: const TextStyle(fontWeight: FontWeight.w500)),
-            ],
-          ),
+
+          // Location Button
+          _buildActionButton(context, address, 'Location'),
           const SizedBox(height: 8),
-          // Action buttons
+
+          // Phone Number
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: const Color(0xFF387478),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              phone,
+              style: const TextStyle(color: Colors.white, fontSize: 14),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              textAlign: TextAlign.center,
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Action Buttons
           Row(
             children: [
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
-                    // Reject button: Set status to 'Rejected'
                     updatePartnerStatus('Rejected', context);
                   },
                   style: ElevatedButton.styleFrom(
@@ -290,7 +296,6 @@ class PendingPartnerCard extends StatelessWidget {
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
-                    // Accept button: Set status to 'Accepted'
                     updatePartnerStatus('Approved', context);
                   },
                   style: ElevatedButton.styleFrom(
@@ -306,6 +311,37 @@ class PendingPartnerCard extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildActionButton(BuildContext context, String url, String buttonLabel) {
+    return Container(
+      width: double.infinity, // Ensures the button spans the full width
+      padding: const EdgeInsets.symmetric(vertical: 0),
+      decoration: BoxDecoration(
+        color: const Color(0xFF629584), // Light green color
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: TextButton(
+        onPressed: () async {
+          if (await canLaunch(url)) {
+            await launch(url);
+          } else {
+            print('Could not launch $url');
+          }
+        },
+        style: TextButton.styleFrom(
+          foregroundColor: Colors.white,
+         
+
+          padding: EdgeInsets.zero,
+        ),
+        child: Text(
+          buttonLabel,
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 14),
+        ),
       ),
     );
   }

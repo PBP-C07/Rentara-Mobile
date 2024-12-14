@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rentara_mobile/pages/main/screens/profile.dart';
 import 'registerPartner.dart'; // Import RegisterPartnerPage to navigate back for re-registration
 import '../../../main/widgets/navbar.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
@@ -128,7 +129,7 @@ class _RejectedPageState extends State<RejectedPage> {
                                 Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => const RegisterPartnerPage(),
+                                    builder: (context) => const ProfilePage(),
                                   ),
                                 );
 

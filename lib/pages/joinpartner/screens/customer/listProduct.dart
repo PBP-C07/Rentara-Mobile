@@ -24,11 +24,14 @@ class _ListProductPageState extends State<ListProductPage> {
     final CookieRequest request = CookieRequest();
     futureVehicles = fetchVehicles(request);
     searchController.addListener(_filterVehicles);
+
   }
 
   Future<List<VehicleEntry>> fetchVehicles(CookieRequest request) async {
     try {
       final response = await request.get('http://127.0.0.1:8000/json_by_partner/');
+      print(response);
+      
       if (response != null && response is List) {
         List<VehicleEntry> vehicleList = response.map((data) => VehicleEntry.fromJson(data)).toList();
         setState(() {

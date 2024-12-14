@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:provider/provider.dart';
+import 'package:rentara_mobile/pages/main/screens/profile.dart';
 import 'pending.dart'; // Import the PendingPage
 import '../../../main/widgets/navbar.dart'; // Assuming NavBarBottom is located here
 import 'package:pbp_django_auth/pbp_django_auth.dart';
@@ -183,7 +184,11 @@ class _RegisterPartnerPageState extends State<RegisterPartnerPage> {
                               const SizedBox(height: 16),
                               ElevatedButton(
                                 onPressed: () {
-                                  Navigator.pop(context);
+                                  Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const ProfilePage()),
+                        );
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF5F8D6C),
