@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rentara_mobile/pages/joinpartner/screens/admin/listPartner.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
@@ -21,32 +22,30 @@ class PartnerCard extends StatelessWidget {
 
   static Future<void> deletePartner(String partnerId, CookieRequest request, BuildContext context) async {
     try {
-      // Memanggil endpoint API DELETE
       final response = await request.get(
         'http://127.0.0.1:8000/delete_partner_flutter/$partnerId/',
       );
       print(response);
 
-      if (response["message"]=="Partner deleted successfully") {
-        // Jika penghapusan berhasil (status 200)
+      if (response["message"] == "Partner deleted successfully") {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Partner berhasil dihapus', style: 
-          TextStyle(color: Colors.white)),
-          backgroundColor: Color(0xFF629584),
+          content: Text('Partner berhasil dihapus', style: TextStyle(color: Colors.white)),
+          backgroundColor: const Color(0xFF629584),
         ));
-        Navigator.pop(context); // Kembali ke halaman sebelumnya setelah delete
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const PartnerListApp()),
+        );
       } else {
-        // Jika ada masalah dengan request
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('Gagal menghapus partner'),
-          backgroundColor: Color(0xFF832424),
+          backgroundColor: const Color(0xFF832424),
         ));
       }
     } catch (error) {
-      // Tangani error jika koneksi gagal
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Terjadi kesalahan: $error'),
-        backgroundColor: Color(0xFF832424),
+        backgroundColor: const Color(0xFF832424),
       ));
       print('Terjadi kesalahan: $error');
     }
@@ -55,84 +54,80 @@ class PartnerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final CookieRequest request = CookieRequest();
-    return Container(
+    return ListView(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF1F1F1), // Light background color
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            spreadRadius: 2,
-            blurRadius: 8,
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Row containing partner name and delete button
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // Partner name in a container with rounded corners
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: const Color(0xFF629584), // Light green color
-                  ),
-                  child: Text(
-                    toko,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: Colors.white,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              // Delete button inside a rounded container with red color
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFF832424), // Red color
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: IconButton(
-                  onPressed: () {
-                    deletePartner(partnerId, request, context);
-                  },
-                  icon: const Icon(Icons.delete, color: Colors.white),
-                ),
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      children: [
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF1F1F1),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.2),
+                spreadRadius: 2,
+                blurRadius: 8,
               ),
             ],
           ),
-          const SizedBox(height: 8), // Space between partner name and action buttons
-
-          // Location and Phone Buttons inside containers
-          Column(
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
             children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: const Color(0xFF629584),
+                      ),
+                      child: Text(
+                        toko,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Colors.white,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF832424),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: IconButton(
+                      onPressed: () {
+                        deletePartner(partnerId, request, context);
+                      },
+                      icon: const Icon(Icons.delete, color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
               _buildActionButton(context, linkLokasi, 'Location'),
-              const SizedBox(height: 8), // Space between buttons
               _buildActionButton(context, 'tel:$notelp', 'Call'),
             ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
-  // Helper widget to build the buttons inside containers
   Widget _buildActionButton(BuildContext context, String url, String buttonLabel) {
     return Container(
-      width: double.infinity, // Ensures the button spans the full width
+      width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 0),
       decoration: BoxDecoration(
-        color: const Color(0xFF629584), // Light green color
+        color: const Color(0xFF629584),
         borderRadius: BorderRadius.circular(12),
       ),
       child: TextButton(

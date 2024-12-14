@@ -17,7 +17,11 @@ class PendingPageApp extends StatelessWidget {
         primaryColor: const Color(0xFF387478), // Primary color for the app
         fontFamily: 'Poppins',
       ),
-      home: const PendingPage(),
+      initialRoute: '/', // Set the initial route to '/'
+      routes: {
+        '/': (context) => const PendingPage(), // Route for PendingPage
+        '/profile': (context) => const ProfilePage(), // Define the /profile route
+      },
     );
   }
 }
@@ -92,9 +96,10 @@ class PendingPage extends StatelessWidget {
                     ElevatedButton(
                       onPressed: () {
                         // Navigate to ProfilePage and remove all other routes until it
-                        Navigator.popUntil(
+                        Navigator.pushReplacement(
                           context,
-                          ModalRoute.withName('/profile'), // Replace '/profile' with your named route
+                          MaterialPageRoute(
+                              builder: (context) => const ProfilePage()),
                         );
                       },
                       style: ElevatedButton.styleFrom(

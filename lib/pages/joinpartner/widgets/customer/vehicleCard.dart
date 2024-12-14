@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:rentara_mobile/pages/joinpartner/screens/customer/editVehicle.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:rentara_mobile/pages/joinpartner/screens/customer/listProduct.dart';
 
 class VehicleCard extends StatelessWidget {
   final String vehicleId; // Tambahkan parameter vehicleId
@@ -162,6 +163,10 @@ class VehicleCard extends StatelessWidget {
                         onPressed: () {
                           // Panggil fungsi delete
                           deleteVehicle(vehicleId, request, context);
+                           Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => ListProductPage()),
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color(0xFF832424),
