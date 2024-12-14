@@ -213,7 +213,24 @@ class _EditVehiclePageState extends State<EditVehiclePage> {
               SizedBox(height: 16),
               _buildTextField(label: 'Nama Kendaraan', controller: _namaKendaraanController),
               SizedBox(height: 12),
-              _buildTextField(label: 'Tipe Kendaraan', controller: _tipeKendaraanController),
+              DropdownButtonFormField<String>(
+                value: _tipeKendaraanController.text.isNotEmpty ? _tipeKendaraanController.text : null,
+                items: ['Motor', 'Mobil']
+                    .map((type) => DropdownMenuItem(value: type, child: Text(type)))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _tipeKendaraanController.text = value ?? '';
+                  });
+                },
+                decoration: InputDecoration(
+                  labelText: 'Tipe Kendaraan',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: Color(0xFF629584)),
+                  ),
+                ),
+              ),
               SizedBox(height: 12),
               _buildTextField(label: 'Warna Kendaraan', controller: _warnaKendaraanController),
               SizedBox(height: 12),
@@ -221,9 +238,45 @@ class _EditVehiclePageState extends State<EditVehiclePage> {
               SizedBox(height: 12),
               _buildTextField(label: 'Harga Sewa per Hari', controller: _hargaSewaController),
               SizedBox(height: 12),
-              _buildTextField(label: 'Status Kendaraan', controller: _statusKendaraanController),
+              DropdownButtonFormField<String>(
+                value: _statusKendaraanController.text.isNotEmpty ? _statusKendaraanController.text : null,
+                items: ['Jual', 'Sewa']
+                    .map((status) => DropdownMenuItem(value: status, child: Text(status)))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _statusKendaraanController.text = value ?? '';
+                  });
+                },
+                decoration: InputDecoration(
+                  labelText: 'Status Kendaraan',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: Color(0xFF629584)),
+                  ),
+                ),
+              ),
               SizedBox(height: 12),
-              _buildTextField(label: 'Bahan Bakar Kendaraan', controller: _bahanBakarController),
+              DropdownButtonFormField<String>(
+                value: _bahanBakarController.text.isNotEmpty ? _bahanBakarController.text : null,
+                items: ['Bensin', 'Diesel']
+                    .map((fuel) => DropdownMenuItem(value: fuel, child: Text(fuel)))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _bahanBakarController.text = value ?? '';
+                  });
+                },
+                decoration: InputDecoration(
+                  labelText: 'Bahan Bakar Kendaraan',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: Color(0xFF629584)),
+                  ),
+                ),
+              ),
+              SizedBox(height: 12),
+              _buildTextField(label: 'URL Gambar Kendaraan', controller: _urlController),
               SizedBox(height: 12),
               Text(
                 'Preview',
@@ -269,6 +322,7 @@ class _EditVehiclePageState extends State<EditVehiclePage> {
               ),
             ],
           ),
+
         ),
       ),
       bottomNavigationBar: NavBarBottom(),
