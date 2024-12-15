@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../joinpartner/screens/admin/managePartner.dart';
-import '../../sewajual/screens/admin/form_vehicle.dart';
 import '../../sewajual/screens/admin/catalgoue_admin.dart';
 
 void main() {
@@ -46,20 +45,6 @@ class NavBarBottomAdmin extends StatelessWidget {
                   PageRouteBuilder(
                     pageBuilder: (context, animation1, animation2) =>
                         ProductCatalogueAdmin(),
-                    transitionDuration: Duration.zero,
-                    reverseTransitionDuration: Duration.zero,
-                  ),
-                  (route) => false,
-                );
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.add_box_rounded, color: Colors.white),
-              onPressed: () {
-                Navigator.of(context).pushAndRemoveUntil(
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation1, animation2) =>
-                        VehicleEntryFormPage(),
                     transitionDuration: Duration.zero,
                     reverseTransitionDuration: Duration.zero,
                   ),
