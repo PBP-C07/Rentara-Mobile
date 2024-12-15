@@ -484,21 +484,23 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                                             ),
                                           );
 
+                                          // Reset form
                                           _formKey.currentState!.reset();
                                           setState(() {
+                                            _brand = "";
+                                            _type = "";
+                                            _color = "";
                                             _vehicleType = JenisKendaraan.MOBIL;
+                                            _price = 0;
                                             _status = Status.SEWA;
+                                            _phone = "";
                                             _fuelType = BahanBakar.BENSIN;
-                                            _photoLink = '';
+                                            _locationLink = "";
+                                            _photoLink = "";
+                                            if (_storeList.isNotEmpty) {
+                                              _store = _storeList[0];
+                                            }
                                           });
-
-                                          if (context.mounted &&
-                                              Navigator.of(context).canPop()) {
-                                            Navigator.of(context).pop();
-                                          } else {
-                                            Navigator.pushReplacementNamed(
-                                                context, '/vehicles/adm/');
-                                          }
                                         } else {
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(

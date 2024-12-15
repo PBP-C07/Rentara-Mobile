@@ -4,10 +4,12 @@ import '../../screens/admin/edit_vehicle.dart';
 
 class VehicleCard extends StatelessWidget {
   final VehicleEntry vehicle;
+  final VoidCallback onEditComplete;
 
   const VehicleCard({
     super.key,
     required this.vehicle,
+    required this.onEditComplete,
   });
 
   @override
@@ -98,7 +100,7 @@ class VehicleCard extends StatelessWidget {
                                   vehicle: vehicle,
                                 ),
                               ),
-                            );
+                            ).then((_) => onEditComplete());
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF2B6777),

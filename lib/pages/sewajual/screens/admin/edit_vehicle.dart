@@ -362,23 +362,25 @@ class _VehicleEditFormPageState extends State<VehicleEditFormPage> {
                             onPressed: () async {
                               if (_formKey.currentState!.validate()) {
                                 try {
+                                  final requestData = {
+                                    'toko': _store,
+                                    'merk': _brand,
+                                    'tipe': _type,
+                                    'warna': _color,
+                                    'jenis_kendaraan': jenisKendaraanValues
+                                        .reverse[_vehicleType],
+                                    'harga': _price.toString(),
+                                    'status': statusValues.reverse[_status],
+                                    'notelp': _phone,
+                                    'bahan_bakar':
+                                        bahanBakarValues.reverse[_fuelType],
+                                    'link_lokasi': _locationLink,
+                                    'link_foto': _photoLink,
+                                  };
+
                                   final response = await request.postJson(
                                     "http://127.0.0.1:8000/vehicle/edit-flutter/${widget.vehicle.pk}/",
-                                    jsonEncode({
-                                      'toko': _store,
-                                      'merk': _brand,
-                                      'tipe': _type,
-                                      'warna': _color,
-                                      'jenis_kendaraan': jenisKendaraanValues
-                                          .reverse[_vehicleType],
-                                      'harga': _price.toString(),
-                                      'status': statusValues.reverse[_status],
-                                      'notelp': _phone,
-                                      'bahan_bakar':
-                                          bahanBakarValues.reverse[_fuelType],
-                                      'link_lokasi': _locationLink,
-                                      'link_foto': _photoLink,
-                                    }),
+                                    jsonEncode(requestData),
                                   );
 
                                   if (context.mounted) {
@@ -391,7 +393,7 @@ class _VehicleEditFormPageState extends State<VehicleEditFormPage> {
                                           backgroundColor: Colors.green,
                                         ),
                                       );
-                                      Navigator.pop(context);
+                                      Navigator.pop(context, true);
                                     } else {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(

@@ -15,9 +15,27 @@ class ProductCatalogueAdmin extends StatefulWidget {
 }
 
 class _ProductCatalogueAdminState extends State<ProductCatalogueAdmin> {
+  late Future<List<VehicleEntry>> _vehiclesFuture;
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      GlobalKey<RefreshIndicatorState>();
+
+  @override
+  void initState() {
+    super.initState();
+    final request = context.read<CookieRequest>();
+    _vehiclesFuture = fetchVehicles(request);
+  }
+
   Future<List<VehicleEntry>> fetchVehicles(CookieRequest request) async {
     final response = await request.get('http://127.0.0.1:8000/vehicle/json/');
     return vehicleEntryFromJson(jsonEncode(response));
+  }
+
+  Future<void> refreshData() async {
+    final request = context.read<CookieRequest>();
+    setState(() {
+      _vehiclesFuture = fetchVehicles(request);
+    });
   }
 
   @override
@@ -34,27 +52,37 @@ class _ProductCatalogueAdminState extends State<ProductCatalogueAdmin> {
               children: [
                 const CatalogueHeader(),
                 Expanded(
-                  child: FutureBuilder<List<VehicleEntry>>(
-                    future: fetchVehicles(request),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                      if (snapshot.hasError) {
-                        return Center(child: Text('Error: ${snapshot.error}'));
-                      }
-                      if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        return const Center(child: Text('No vehicles found'));
-                      }
+                  child: RefreshIndicator(
+                    key: _refreshIndicatorKey,
+                    onRefresh: refreshData,
+                    child: FutureBuilder<List<VehicleEntry>>(
+                      future: _vehiclesFuture,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
+                        if (snapshot.hasError) {
+                          return Center(
+                              child: Text('Error: ${snapshot.error}'));
+                        }
+                        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                          return const Center(child: Text('No vehicles found'));
+                        }
 
-                      return ListView.builder(
-                        padding: const EdgeInsets.all(24),
-                        itemCount: snapshot.data!.length,
-                        itemBuilder: (context, index) {
-                          return VehicleCard(vehicle: snapshot.data![index]);
-                        },
-                      );
-                    },
+                        return ListView.builder(
+                          padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
+                          itemCount: snapshot.data!.length,
+                          itemBuilder: (context, index) {
+                            return VehicleCard(
+                              vehicle: snapshot.data![index],
+                              onEditComplete: refreshData,
+                            );
+                          },
+                        );
+                      },
+                    ),
                   ),
                 ),
               ],

@@ -110,8 +110,10 @@ class _LoginPageState extends State<LoginPage> {
                       final prefs = await SharedPreferences.getInstance();
                       await prefs.setString('username', response['username']);
 
-                      bool isStaff = response['is_staff'] ?? false;
-                      await prefs.setBool('is_staff', isStaff);
+                      bool isStaff = response['is_staff'] == true;
+                      await prefs.setBool('isStaff', isStaff);
+
+                      print("Saved staff status: $isStaff");
 
                       if (context.mounted) {
                         ScaffoldMessenger.of(context)
