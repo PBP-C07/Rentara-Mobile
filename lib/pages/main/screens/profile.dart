@@ -39,11 +39,6 @@ class _ProfilePageState extends State<ProfilePage> {
       isPartner = prefs.getBool('isPartner') ?? false;
       isStaff = prefs.getBool('isStaff') ?? false;
     });
-
-    print("Retrieved values from SharedPreferences:");
-    print("username: $username");
-    print("isStaff: $isStaff");
-    print("isPartner: $isPartner");
   }
 
   Future<bool> checkPartnerStatus(CookieRequest request) async {
