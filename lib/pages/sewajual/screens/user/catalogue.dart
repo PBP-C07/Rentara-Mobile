@@ -1,5 +1,5 @@
+import 'dart:async';
 import 'dart:convert';
-import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
@@ -18,15 +18,92 @@ class CarCatalogueScreen extends StatefulWidget {
 }
 
 class _CarCatalogueScreenState extends State<CarCatalogueScreen> {
+  String _searchQuery = '';
+  List<VehicleEntry> _vehicles = [];
+  List<VehicleEntry> _filteredVehicles = [];
+  bool _isLoading = true;
+  Timer? _debounce;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeData();
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _initializeData() async {
+    final request = context.read<CookieRequest>();
+    try {
+      final vehicles = await fetchVehicles(request);
+      setState(() {
+        _vehicles = vehicles;
+        _filteredVehicles = vehicles;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   Future<List<VehicleEntry>> fetchVehicles(CookieRequest request) async {
-    final response = await request.get('http://127.0.0.1:8000/vehicle/json/');
+    String url = 'http://127.0.0.1:8000/vehicle/json/';
+    if (_searchQuery.isNotEmpty) {
+      final encodedQuery = Uri.encodeQueryComponent(_searchQuery);
+      url += '?search=$encodedQuery';
+    }
+    final response = await request.get(url);
     return vehicleEntryFromJson(jsonEncode(response));
+  }
+
+  void _filterVehicles(String query) {
+    if (query.isEmpty) {
+      _filteredVehicles = _vehicles;
+      return;
+    }
+
+    final searchLower = query.toLowerCase();
+    _filteredVehicles = _vehicles.where((vehicle) {
+      final fields = vehicle.fields;
+
+      final searchableStrings = [
+        fields.merk.toLowerCase(),
+        fields.tipe.toLowerCase(),
+        fields.toko.toLowerCase(),
+        fields.warna.toLowerCase(),
+        jenisKendaraanValues.reverse[fields.jenisKendaraan]?.toLowerCase() ??
+            '',
+        bahanBakarValues.reverse[fields.bahanBakar]?.toLowerCase() ?? '',
+      ];
+
+      return searchableStrings.any((text) => text.contains(searchLower));
+    }).toList();
+  }
+
+  void _onSearchChanged(String query) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+
+    setState(() {
+      _searchQuery = query;
+      _isLoading = true;
+    });
+
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      _filterVehicles(query);
+      setState(() {
+        _isLoading = false;
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final request = context.watch<CookieRequest>();
-
     return Scaffold(
       backgroundColor: const Color(0xFF2B6777),
       body: SafeArea(
@@ -78,69 +155,116 @@ class _CarCatalogueScreenState extends State<CarCatalogueScreen> {
                         topRight: Radius.circular(20),
                       ),
                     ),
-                    child: SingleChildScrollView(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 16),
-                              decoration: BoxDecoration(
-                                color: Colors.grey[200],
-                                borderRadius: BorderRadius.circular(8),
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[100],
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: const Color(0xFF2B6777).withOpacity(0.1),
                               ),
-                              child: Row(
-                                children: [
-                                  Icon(Icons.search, color: Colors.grey[600]),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: TextField(
-                                      decoration: InputDecoration(
-                                        hintText: 'Search by name',
-                                        border: InputBorder.none,
-                                        hintStyle:
-                                            TextStyle(color: Colors.grey[600]),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.search, color: Colors.grey[600]),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: TextField(
+                                    onChanged: _onSearchChanged,
+                                    decoration: InputDecoration(
+                                      hintText: 'Search vehicles here...',
+                                      border: InputBorder.none,
+                                      hintStyle: TextStyle(
+                                        color: Colors.grey[600],
+                                        fontSize: 16,
                                       ),
                                     ),
                                   ),
-                                  Icon(Icons.tune,
-                                      color: const Color(0xFF2B6777)),
+                                ),
+                                if (_searchQuery.isNotEmpty)
+                                  IconButton(
+                                    icon: const Icon(Icons.clear),
+                                    color: Colors.grey[600],
+                                    onPressed: () {
+                                      setState(() {
+                                        _searchQuery = '';
+                                        _filteredVehicles = _vehicles;
+                                      });
+                                    },
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        if (_isLoading)
+                          const Expanded(
+                            child: Center(child: CircularProgressIndicator()),
+                          )
+                        else if (_filteredVehicles.isEmpty)
+                          Expanded(
+                            child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.search_off,
+                                    size: 64,
+                                    color: Colors.grey[400],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    'No vehicles found',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.grey[600],
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Try different keywords',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey[500],
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
-                            const SizedBox(height: 16),
-                            FutureBuilder<List<VehicleEntry>>(
-                              future: fetchVehicles(request),
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return const Center(
-                                      child: CircularProgressIndicator());
-                                }
-                                if (!snapshot.hasData) {
-                                  return const Text('No vehicles found');
-                                }
-
-                                return Column(
+                          )
+                        else
+                          Expanded(
+                            child: SingleChildScrollView(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0),
+                                child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      '${snapshot.data!.length} Products Found',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.grey[800],
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8.0),
+                                      child: Text(
+                                        '${_filteredVehicles.length} Products Found',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.grey[800],
+                                          fontWeight: FontWeight.w500,
+                                        ),
                                       ),
                                     ),
-                                    const SizedBox(height: 16),
                                     ListView.builder(
                                       shrinkWrap: true,
                                       physics:
                                           const NeverScrollableScrollPhysics(),
-                                      itemCount: snapshot.data!.length,
+                                      itemCount: _filteredVehicles.length,
                                       itemBuilder: (context, index) {
-                                        final vehicle = snapshot.data![index];
+                                        final vehicle =
+                                            _filteredVehicles[index];
                                         return InkWell(
                                           onTap: () async {
                                             final prefs =
@@ -176,12 +300,11 @@ class _CarCatalogueScreenState extends State<CarCatalogueScreen> {
                                     ),
                                     const SizedBox(height: 80),
                                   ],
-                                );
-                              },
+                                ),
+                              ),
                             ),
-                          ],
-                        ),
-                      ),
+                          ),
+                      ],
                     ),
                   ),
                 ),
@@ -197,30 +320,5 @@ class _CarCatalogueScreenState extends State<CarCatalogueScreen> {
         ),
       ),
     );
-  }
-
-  Widget _buildFeature(IconData icon, String text) {
-    return Row(
-      children: [
-        Icon(icon, size: 16, color: Colors.grey[600]),
-        const SizedBox(width: 4),
-        Text(
-          text,
-          style: TextStyle(
-            color: Colors.grey[600],
-            fontSize: 14,
-          ),
-        ),
-      ],
-    );
-  }
-
-  String formatPrice(int price) {
-    final formatCurrency = NumberFormat.currency(
-      locale: 'id_ID',
-      symbol: 'Rp ',
-      decimalDigits: 0,
-    );
-    return formatCurrency.format(price);
   }
 }

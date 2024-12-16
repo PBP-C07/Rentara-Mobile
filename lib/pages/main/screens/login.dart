@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../sewajual/screens/admin/catalgoue_admin.dart';
+import '../../joinpartner/screens/admin/managePartner.dart';
 import 'home.dart';
 import 'register.dart';
 
@@ -110,8 +110,10 @@ class _LoginPageState extends State<LoginPage> {
                       final prefs = await SharedPreferences.getInstance();
                       await prefs.setString('username', response['username']);
 
-                      bool isStaff = response['is_staff'] ?? false;
-                      await prefs.setBool('is_staff', isStaff);
+                      bool isStaff = response['is_staff'] == true;
+                      await prefs.setBool('isStaff', isStaff);
+
+                      print("Saved staff status: $isStaff");
 
                       if (context.mounted) {
                         ScaffoldMessenger.of(context)
@@ -128,8 +130,7 @@ class _LoginPageState extends State<LoginPage> {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                                builder: (context) =>
-                                    const ProductCatalogueAdmin()),
+                                builder: (context) => const ManagePartnerApp()),
                           );
                         } else {
                           Navigator.pushReplacement(

@@ -7,6 +7,7 @@ import 'package:rentara_mobile/pages/joinpartner/screens/customer/registerPartne
 import 'package:rentara_mobile/pages/joinpartner/screens/customer/rejected.dart';
 import 'package:rentara_mobile/pages/main/screens/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../sewajual/screens/admin/catalgoue_admin.dart';
 import 'login.dart';
 import 'register.dart';
 import '../widgets/navbar.dart';
@@ -22,6 +23,7 @@ class _ProfilePageState extends State<ProfilePage> {
   String? username;
   bool isLoading = true;
   bool isPartner = false;
+  bool isStaff = false;
 
   @override
   void initState() {
@@ -35,24 +37,23 @@ class _ProfilePageState extends State<ProfilePage> {
       username = prefs.getString('username');
       isLoading = false;
       isPartner = prefs.getBool('isPartner') ?? false;
+      isStaff = prefs.getBool('isStaff') ?? false;
     });
   }
 
   Future<bool> checkPartnerStatus(CookieRequest request) async {
-  try {
-    // Mengirimkan permintaan GET ke server
-    final response = await request.get('http://127.0.0.1:8000/check_status/');
-    print(response);
+    try {
+      // Mengirimkan permintaan GET ke server
+      final response = await request.get('http://127.0.0.1:8000/check_status/');
+      print(response);
 
-    return response['is_partner'] ?? false;
-  } catch (e) {
-    // Menangani kesalahan
-    print('Error: $e');
-    return false; // Mengembalikan false jika terjadi kesalahan
+      return response['is_partner'] ?? false;
+    } catch (e) {
+      // Menangani kesalahan
+      print('Error: $e');
+      return false; // Mengembalikan false jika terjadi kesalahan
+    }
   }
-}
-
-
 
   Widget _buildMenuItem(String title, IconData icon) {
     return Container(
@@ -161,7 +162,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       const SizedBox(height: 16),
                       const Text(
-                        'Sign in to access all features and personalize your experience',
+                        'Sign in to access all features and personalize your experience!',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 16,
@@ -326,40 +327,41 @@ class _ProfilePageState extends State<ProfilePage> {
                       InkWell(
                         onTap: () async {
                           try {
-                            final response = await request.get('http://127.0.0.1:8000/check_status/');
+                            final response = await request
+                                .get('http://127.0.0.1:8000/check_status/');
                             bool isPartner = await checkPartnerStatus(request);
                             // String status = response['status'];
                             print(response);
                             // print('isPartner status: $isPartner'); // Debugging output
-                            if (isPartner && response['status']=='Approved') {
+                            if (isPartner && response['status'] == 'Approved') {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => ListProductPage(),
                                 ),
                               );
-                            } 
-                            else if (isPartner && response['status']=='Pending'){
+                            } else if (isPartner &&
+                                response['status'] == 'Pending') {
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => const PendingPageApp(),
                                 ),
                               );
-                            } 
-                            else if (isPartner && response['status']=='Rejected'){
+                            } else if (isPartner &&
+                                response['status'] == 'Rejected') {
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => const RejectedPage(),
                                 ),
                               );
-                            } 
-                            else {
+                            } else {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const RegisterPartnerApp(),
+                                  builder: (context) =>
+                                      const RegisterPartnerApp(),
                                 ),
                               );
                             }
@@ -371,53 +373,51 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                             );
                           }
-
                         },
-                                                
                         child: _buildMenuItem('Join Partner', Icons.handshake),
                       ),
                       InkWell(
                         onTap: () async {
-                          try{
-                             final response = await request.get('http://127.0.0.1:8000/check_status/');
+                          try {
+                            final response = await request
+                                .get('http://127.0.0.1:8000/check_status/');
                             bool isPartner = await checkPartnerStatus(request);
                             // String status = response['status'];
                             print(response);
                             // print('isPartner status: $isPartner'); // Debugging output
-                            if (isPartner && response['status']=='Approved') {
+                            if (isPartner && response['status'] == 'Approved') {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => ListProductPage(),
                                 ),
                               );
-                            } 
-                            else if (isPartner && response['status']=='Pending'){
+                            } else if (isPartner &&
+                                response['status'] == 'Pending') {
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => const PendingPageApp(),
                                 ),
                               );
-                            } 
-                            else if (isPartner && response['status']=='Rejected'){
+                            } else if (isPartner &&
+                                response['status'] == 'Rejected') {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => const RejectedPage(),
                                 ),
                               );
-                            } 
-                            else {
+                            } else {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const RegisterPartnerApp(),
+                                  builder: (context) =>
+                                      const RegisterPartnerApp(),
                                 ),
                               );
                             }
-                          }
-                          catch (e) {
+                          } catch (e) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text('Error: $e'),
@@ -520,6 +520,10 @@ class _ProfilePageState extends State<ProfilePage> {
           child: CircularProgressIndicator(),
         ),
       );
+    }
+
+    if (isStaff) {
+      return const ProductCatalogueAdmin();
     }
 
     return username == null ? _buildGuestView() : _buildUserProfile(request);
