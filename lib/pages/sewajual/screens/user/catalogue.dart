@@ -176,7 +176,7 @@ class _CarCatalogueScreenState extends State<CarCatalogueScreen> {
                                   child: TextField(
                                     onChanged: _onSearchChanged,
                                     decoration: InputDecoration(
-                                      hintText: 'Search vehicles...',
+                                      hintText: 'Search vehicles here...',
                                       border: InputBorder.none,
                                       hintStyle: TextStyle(
                                         color: Colors.grey[600],

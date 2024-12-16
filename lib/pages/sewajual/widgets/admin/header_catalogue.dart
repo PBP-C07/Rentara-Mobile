@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import '../../screens/admin/form_vehicle.dart';
 
 class CatalogueHeader extends StatelessWidget {
-  const CatalogueHeader({super.key});
+  final Function(String) onSearchChanged;
+
+  const CatalogueHeader({
+    super.key,
+    required this.onSearchChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -56,14 +61,13 @@ class CatalogueHeader extends StatelessWidget {
                     color: Color(0xFF2B6777),
                   ),
                   onPressed: () {
-                    Navigator.of(context).pushAndRemoveUntil(
+                    Navigator.of(context).push(
                       PageRouteBuilder(
                         pageBuilder: (context, animation1, animation2) =>
                             VehicleEntryFormPage(),
                         transitionDuration: Duration.zero,
                         reverseTransitionDuration: Duration.zero,
                       ),
-                      (route) => false,
                     );
                   },
                 ),
@@ -82,10 +86,11 @@ class CatalogueHeader extends StatelessWidget {
               children: [
                 const Icon(Icons.search, color: Colors.grey),
                 const SizedBox(width: 8),
-                const Expanded(
+                Expanded(
                   child: TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Search vehicles...',
+                    onChanged: onSearchChanged,
+                    decoration: const InputDecoration(
+                      hintText: 'Search vehicles here...',
                       border: InputBorder.none,
                       hintStyle: TextStyle(color: Colors.grey),
                     ),

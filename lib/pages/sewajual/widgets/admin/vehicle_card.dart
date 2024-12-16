@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 import '../../models/vehicle_model.dart';
 import '../../screens/admin/edit_vehicle.dart';
 
@@ -14,6 +16,8 @@ class VehicleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -115,7 +119,40 @@ class VehicleCard extends StatelessWidget {
                       const SizedBox(width: 8),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () async {
+                            final confirm = await showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                      title: const Text("Delete this product?"),
+                                      actions: [
+                                        TextButton(
+                                          child: Text("Yes",
+                                              style: TextStyle(
+                                                  color: Colors.teal[700])),
+                                          onPressed: () =>
+                                              Navigator.pop(context, true),
+                                        ),
+                                      ],
+                                    ));
+
+                            if (confirm) {
+                              try {
+                                final response = await request.postJson(
+                                  "http://127.0.0.1:8000/vehicles/adm/${vehicle.pk}/delete/",
+                                  "{}",
+                                );
+                                if (response['status'] == 'success') {
+                                  onEditComplete();
+                                }
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content:
+                                          Text("Error, failed to delete.")),
+                                );
+                              }
+                            }
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor:
                                 const Color.fromARGB(255, 200, 72, 72),

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
@@ -15,15 +16,40 @@ class ProductCatalogueAdmin extends StatefulWidget {
 }
 
 class _ProductCatalogueAdminState extends State<ProductCatalogueAdmin> {
-  late Future<List<VehicleEntry>> _vehiclesFuture;
+  String _searchQuery = '';
+  List<VehicleEntry> _allVehicles = [];
+  List<VehicleEntry> _filteredVehicles = [];
+  bool _isLoading = true;
+  Timer? _debounce;
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
       GlobalKey<RefreshIndicatorState>();
 
   @override
   void initState() {
     super.initState();
+    _initializeData();
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _initializeData() async {
     final request = context.read<CookieRequest>();
-    _vehiclesFuture = fetchVehicles(request);
+    try {
+      final vehicles = await fetchVehicles(request);
+      setState(() {
+        _allVehicles = vehicles;
+        _filteredVehicles = vehicles;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   Future<List<VehicleEntry>> fetchVehicles(CookieRequest request) async {
@@ -31,17 +57,67 @@ class _ProductCatalogueAdminState extends State<ProductCatalogueAdmin> {
     return vehicleEntryFromJson(jsonEncode(response));
   }
 
-  Future<void> refreshData() async {
-    final request = context.read<CookieRequest>();
+  void _filterVehicles(String query) {
+    if (query.isEmpty) {
+      _filteredVehicles = _allVehicles;
+      return;
+    }
+
+    final searchLower = query.toLowerCase();
+    _filteredVehicles = _allVehicles.where((vehicle) {
+      final fields = vehicle.fields;
+
+      final searchableStrings = [
+        fields.merk.toLowerCase(),
+        fields.tipe.toLowerCase(),
+        fields.toko.toLowerCase(),
+        fields.warna.toLowerCase(),
+        jenisKendaraanValues.reverse[fields.jenisKendaraan]?.toLowerCase() ??
+            '',
+        bahanBakarValues.reverse[fields.bahanBakar]?.toLowerCase() ?? '',
+      ];
+
+      return searchableStrings.any((text) => text.contains(searchLower));
+    }).toList();
+  }
+
+  void _handleSearch(String query) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+
     setState(() {
-      _vehiclesFuture = fetchVehicles(request);
+      _searchQuery = query;
+      _isLoading = true;
     });
+
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      _filterVehicles(query);
+      setState(() {
+        _isLoading = false;
+      });
+    });
+  }
+
+  Future<void> refreshData() async {
+    setState(() {
+      _isLoading = true;
+    });
+    final request = context.read<CookieRequest>();
+    try {
+      final vehicles = await fetchVehicles(request);
+      setState(() {
+        _allVehicles = vehicles;
+        _filterVehicles(_searchQuery); // Re-apply current search filter
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final request = context.watch<CookieRequest>();
-
     return Scaffold(
       backgroundColor: Colors.grey[50],
       body: SafeArea(
@@ -50,39 +126,54 @@ class _ProductCatalogueAdminState extends State<ProductCatalogueAdmin> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const CatalogueHeader(),
+                CatalogueHeader(onSearchChanged: _handleSearch),
                 Expanded(
                   child: RefreshIndicator(
                     key: _refreshIndicatorKey,
                     onRefresh: refreshData,
-                    child: FutureBuilder<List<VehicleEntry>>(
-                      future: _vehiclesFuture,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                              child: CircularProgressIndicator());
-                        }
-                        if (snapshot.hasError) {
-                          return Center(
-                              child: Text('Error: ${snapshot.error}'));
-                        }
-                        if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                          return const Center(child: Text('No vehicles found'));
-                        }
-
-                        return ListView.builder(
-                          padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
-                          itemCount: snapshot.data!.length,
-                          itemBuilder: (context, index) {
-                            return VehicleCard(
-                              vehicle: snapshot.data![index],
-                              onEditComplete: refreshData,
-                            );
-                          },
-                        );
-                      },
-                    ),
+                    child: _isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : _filteredVehicles.isEmpty
+                            ? Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.search_off,
+                                      size: 64,
+                                      color: Colors.grey[400],
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      'No vehicles found',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        color: Colors.grey[600],
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Try different keywords',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey[500],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : ListView.builder(
+                                padding:
+                                    const EdgeInsets.fromLTRB(24, 24, 24, 100),
+                                itemCount: _filteredVehicles.length,
+                                itemBuilder: (context, index) {
+                                  return VehicleCard(
+                                    vehicle: _filteredVehicles[index],
+                                    onEditComplete: refreshData,
+                                  );
+                                },
+                              ),
                   ),
                 ),
               ],
@@ -106,12 +197,7 @@ class _ProductCatalogueAdminState extends State<ProductCatalogueAdmin> {
                     ),
                   ],
                 ),
-                child: const Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: NavBarBottomAdmin(),
-                ),
+                child: const NavBarBottomAdmin(),
               ),
             ),
           ],

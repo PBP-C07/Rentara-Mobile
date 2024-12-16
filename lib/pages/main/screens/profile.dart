@@ -162,7 +162,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       const SizedBox(height: 16),
                       const Text(
-                        'Sign in to access all features and personalize your experience',
+                        'Sign in to access all features and personalize your experience!',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 16,

@@ -4,6 +4,8 @@ import '../../models/vehicle_model.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
+import '../../widgets/admin/edit_add_component.dart';
+
 class VehicleEditFormPage extends StatefulWidget {
   final VehicleEntry vehicle;
 
@@ -44,145 +46,46 @@ class _VehicleEditFormPageState extends State<VehicleEditFormPage> {
     _photoLink = widget.vehicle.fields.linkFoto;
   }
 
-  final mainColor = const Color(0xFF2B6777);
-  final secondaryColor = const Color(0xFF52AB98);
-  final backgroundColor = const Color(0xFFF2F2F2);
-  final cardColor = Colors.white;
+  Future<void> _handleSubmit(
+      BuildContext context, CookieRequest request) async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        final requestData = {
+          'toko': _store,
+          'merk': _brand,
+          'tipe': _type,
+          'warna': _color,
+          'jenis_kendaraan': jenisKendaraanValues.reverse[_vehicleType],
+          'harga': _price.toString(),
+          'status': statusValues.reverse[_status],
+          'notelp': _phone,
+          'bahan_bakar': bahanBakarValues.reverse[_fuelType],
+          'link_lokasi': _locationLink,
+          'link_foto': _photoLink,
+        };
 
-  InputDecoration _buildInputDecoration(String label, {IconData? icon}) {
-    return InputDecoration(
-      labelText: label,
-      prefixIcon: icon != null
-          ? Icon(icon, color: mainColor.withOpacity(0.7), size: 22)
-          : null,
-      labelStyle: TextStyle(
-        color: mainColor.withOpacity(0.8),
-        fontSize: 15,
-        fontWeight: FontWeight.w500,
-      ),
-      filled: true,
-      fillColor: backgroundColor,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide.none,
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: mainColor.withOpacity(0.1)),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: mainColor, width: 1.5),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.red, width: 1),
-      ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-    );
-  }
+        final response = await request.postJson(
+          "http://127.0.0.1:8000/vehicle/edit-flutter/${widget.vehicle.pk}/",
+          jsonEncode(requestData),
+        );
 
-  Widget _buildDropdownDecoration(String label, Widget child,
-      {IconData? icon}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            color: mainColor.withOpacity(0.8),
-            fontSize: 15,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: mainColor.withOpacity(0.1)),
-          ),
-          child: Row(
-            children: [
-              if (icon != null) ...[
-                Icon(icon, color: mainColor.withOpacity(0.7), size: 22),
-                const SizedBox(width: 12),
-              ],
-              Expanded(child: child),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildImagePreview() {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 16),
-      width: double.infinity,
-      height: 200,
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: mainColor.withOpacity(0.1)),
-        boxShadow: [
-          BoxShadow(
-            color: mainColor.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: _photoLink.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.photo_camera,
-                      size: 48, color: mainColor.withOpacity(0.3)),
-                  const SizedBox(height: 8),
-                  Text(
-                    'No image preview',
-                    style: TextStyle(color: mainColor.withOpacity(0.5)),
-                  ),
-                ],
-              ),
-            )
-          : ClipRRect(
-              borderRadius: BorderRadius.circular(15),
-              child: Image.network(
-                _photoLink,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.broken_image,
-                          size: 48, color: mainColor.withOpacity(0.3)),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Invalid image URL',
-                        style: TextStyle(color: mainColor.withOpacity(0.5)),
-                      ),
-                    ],
-                  ),
-                ),
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Center(
-                    child: CircularProgressIndicator(
-                      color: mainColor,
-                      value: loadingProgress.expectedTotalBytes != null
-                          ? loadingProgress.cumulativeBytesLoaded /
-                              loadingProgress.expectedTotalBytes!
-                          : null,
-                    ),
-                  );
-                },
-              ),
-            ),
-    );
+        if (context.mounted) {
+          if (response['status'] == 'success') {
+            VehicleFormComponents.showSuccessSnackBar(
+                context, "Vehicle updated successfully!");
+            Navigator.pop(context, true);
+          } else {
+            VehicleFormComponents.showErrorSnackBar(
+                context, "Failed to update vehicle.");
+          }
+        }
+      } catch (e) {
+        if (context.mounted) {
+          VehicleFormComponents.showErrorSnackBar(
+              context, "Error: ${e.toString()}");
+        }
+      }
+    }
   }
 
   @override
@@ -190,11 +93,10 @@ class _VehicleEditFormPageState extends State<VehicleEditFormPage> {
     final request = context.watch<CookieRequest>();
 
     return Scaffold(
-      backgroundColor: mainColor,
+      backgroundColor: VehicleFormComponents.mainColor,
       body: SafeArea(
         child: Column(
           children: [
-            // App Bar
             Padding(
               padding: const EdgeInsets.all(20.0),
               child: Row(
@@ -221,11 +123,10 @@ class _VehicleEditFormPageState extends State<VehicleEditFormPage> {
                 ],
               ),
             ),
-            // Form Content
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
-                  color: cardColor,
+                  color: VehicleFormComponents.cardColor,
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(30),
                     topRight: Radius.circular(30),
@@ -239,71 +140,68 @@ class _VehicleEditFormPageState extends State<VehicleEditFormPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Header
                           Text(
                             'Vehicle Details',
                             style: TextStyle(
-                              color: mainColor,
+                              color: VehicleFormComponents.mainColor,
                               fontSize: 20,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Update your vehicle information below',
+                            'Update your vehicle information below!',
                             style: TextStyle(
                               color: Colors.grey[600],
                               fontSize: 14,
                             ),
                           ),
-                          _buildImagePreview(),
+                          VehicleFormComponents.buildImagePreview(_photoLink),
                           const SizedBox(height: 24),
-
-                          // Form Fields
                           TextFormField(
                             initialValue: _store,
-                            decoration: _buildInputDecoration('Store Name',
-                                icon: Icons.store),
+                            decoration:
+                                VehicleFormComponents.buildInputDecoration(
+                                    'Store Name',
+                                    icon: Icons.store),
                             onChanged: (value) =>
                                 setState(() => _store = value),
-                            validator: (value) =>
-                                value?.isEmpty ?? true ? "Required" : null,
+                            validator: VehicleFormComponents.validateRequired,
                           ),
                           const SizedBox(height: 16),
-
                           TextFormField(
                             initialValue: _brand,
-                            decoration: _buildInputDecoration('Brand',
-                                icon: Icons.branding_watermark),
+                            decoration:
+                                VehicleFormComponents.buildInputDecoration(
+                                    'Brand',
+                                    icon: Icons.branding_watermark),
                             onChanged: (value) =>
                                 setState(() => _brand = value),
-                            validator: (value) =>
-                                value?.isEmpty ?? true ? "Required" : null,
+                            validator: VehicleFormComponents.validateRequired,
                           ),
                           const SizedBox(height: 16),
-
                           TextFormField(
                             initialValue: _type,
-                            decoration: _buildInputDecoration('Type',
-                                icon: Icons.category),
+                            decoration:
+                                VehicleFormComponents.buildInputDecoration(
+                                    'Type',
+                                    icon: Icons.category),
                             onChanged: (value) => setState(() => _type = value),
-                            validator: (value) =>
-                                value?.isEmpty ?? true ? "Required" : null,
+                            validator: VehicleFormComponents.validateRequired,
                           ),
                           const SizedBox(height: 16),
-
                           TextFormField(
                             initialValue: _color,
-                            decoration: _buildInputDecoration('Color',
-                                icon: Icons.color_lens),
+                            decoration:
+                                VehicleFormComponents.buildInputDecoration(
+                                    'Color',
+                                    icon: Icons.color_lens),
                             onChanged: (value) =>
                                 setState(() => _color = value),
-                            validator: (value) =>
-                                value?.isEmpty ?? true ? "Required" : null,
+                            validator: VehicleFormComponents.validateRequired,
                           ),
                           const SizedBox(height: 16),
-
-                          _buildDropdownDecoration(
+                          VehicleFormComponents.buildDropdownDecoration(
                             'Vehicle Type',
                             DropdownButtonHideUnderline(
                               child: DropdownButton<JenisKendaraan>(
@@ -325,26 +223,19 @@ class _VehicleEditFormPageState extends State<VehicleEditFormPage> {
                             icon: Icons.directions_car,
                           ),
                           const SizedBox(height: 16),
-
                           TextFormField(
                             initialValue: _price.toString(),
-                            decoration: _buildInputDecoration('Price',
-                                icon: Icons.attach_money),
+                            decoration:
+                                VehicleFormComponents.buildInputDecoration(
+                                    'Price',
+                                    icon: Icons.attach_money),
                             keyboardType: TextInputType.number,
                             onChanged: (value) => setState(
                                 () => _price = int.tryParse(value) ?? 0),
-                            validator: (value) {
-                              if (value?.isEmpty ?? true) return "Required";
-                              if (int.tryParse(value!) == null)
-                                return "Must be a number";
-                              if (int.parse(value) < 1)
-                                return "Must be positive";
-                              return null;
-                            },
+                            validator: VehicleFormComponents.validatePrice,
                           ),
                           const SizedBox(height: 16),
-
-                          _buildDropdownDecoration(
+                          VehicleFormComponents.buildDropdownDecoration(
                             'Status',
                             DropdownButtonHideUnderline(
                               child: DropdownButton<Status>(
@@ -364,24 +255,19 @@ class _VehicleEditFormPageState extends State<VehicleEditFormPage> {
                             icon: Icons.info_outline,
                           ),
                           const SizedBox(height: 16),
-
                           TextFormField(
                             initialValue: _phone,
-                            decoration: _buildInputDecoration('Phone Number',
-                                icon: Icons.phone),
+                            decoration:
+                                VehicleFormComponents.buildInputDecoration(
+                                    'Phone Number',
+                                    icon: Icons.phone),
                             keyboardType: TextInputType.phone,
                             onChanged: (value) =>
                                 setState(() => _phone = value),
-                            validator: (value) {
-                              if (value?.isEmpty ?? true) return "Required";
-                              if (!RegExp(r'^\d{10,13}$').hasMatch(value!))
-                                return "Invalid format";
-                              return null;
-                            },
+                            validator: VehicleFormComponents.validatePhone,
                           ),
                           const SizedBox(height: 16),
-
-                          _buildDropdownDecoration(
+                          VehicleFormComponents.buildDropdownDecoration(
                             'Fuel Type',
                             DropdownButtonHideUnderline(
                               child: DropdownButton<BahanBakar>(
@@ -401,74 +287,42 @@ class _VehicleEditFormPageState extends State<VehicleEditFormPage> {
                             icon: Icons.local_gas_station,
                           ),
                           const SizedBox(height: 16),
-
                           TextFormField(
                             initialValue: _locationLink,
-                            decoration: _buildInputDecoration('Location Link',
-                                icon: Icons.location_on),
+                            decoration:
+                                VehicleFormComponents.buildInputDecoration(
+                                    'Location Link',
+                                    icon: Icons.location_on),
                             onChanged: (value) =>
                                 setState(() => _locationLink = value),
-                            validator: (value) {
-                              if (value?.isEmpty ?? true) return "Required";
-                              if (!Uri.parse(value!).isAbsolute)
-                                return "Invalid URL";
-                              return null;
-                            },
+                            validator: VehicleFormComponents.validateUrl,
                           ),
                           const SizedBox(height: 16),
-
                           TextFormField(
                             initialValue: _photoLink,
-                            decoration: _buildInputDecoration('Photo Link',
-                                icon: Icons.photo),
-                            onChanged: (value) {
-                              setState(() => _photoLink = value);
-                            },
-                            validator: (value) {
-                              if (value?.isEmpty ?? true) return "Required";
-                              if (!Uri.parse(value!).isAbsolute)
-                                return "Invalid URL";
-                              return null;
-                            },
+                            decoration:
+                                VehicleFormComponents.buildInputDecoration(
+                                    'Photo Link',
+                                    icon: Icons.photo),
+                            onChanged: (value) =>
+                                setState(() => _photoLink = value),
+                            validator: VehicleFormComponents.validateUrl,
                           ),
                           const SizedBox(height: 32),
-
-                          // Update Button
-                          Container(
+                          SizedBox(
                             width: double.infinity,
                             height: 55,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [secondaryColor, mainColor],
-                                begin: Alignment.centerLeft,
-                                end: Alignment.centerRight,
-                              ),
-                              borderRadius: BorderRadius.circular(15),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: mainColor.withOpacity(0.3),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
                             child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.transparent,
-                                shadowColor: Colors.transparent,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15),
-                                ),
-                              ),
-                              onPressed: () async {
-                                // ... existing onPressed logic ...
-                              },
+                              style: VehicleFormComponents
+                                  .buildSubmitButtonStyle(),
+                              onPressed: () => _handleSubmit(context, request),
                               child: const Text(
                                 'UPDATE VEHICLE',
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                   letterSpacing: 1,
+                                  color: Colors.white,
                                 ),
                               ),
                             ),
