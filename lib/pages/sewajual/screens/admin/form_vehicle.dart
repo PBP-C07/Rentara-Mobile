@@ -100,7 +100,6 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
   @override
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
-
     return Scaffold(
       backgroundColor: VehicleFormComponents.mainColor,
       body: SafeArea(
