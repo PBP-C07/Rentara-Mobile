@@ -127,16 +127,18 @@ class _LoginPageState extends State<LoginPage> {
                           );
 
                         if (isStaff) {
-                          Navigator.pushReplacement(
+                          Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => const ManagePartnerApp()),
+                            (route) => false,
                           );
                         } else {
-                          Navigator.pushReplacement(
+                          Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => const MyHomePage()),
+                            (route) => false,
                           );
                         }
                       }

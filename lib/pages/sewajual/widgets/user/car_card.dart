@@ -38,6 +38,49 @@ class CarCard extends StatelessWidget {
     );
   }
 
+  Widget _buildStatusBadge(Status status) {
+    final bool isRent = status == Status.SEWA;
+    final Color statusColor = isRent
+        ? const Color.fromARGB(255, 71, 132, 111)
+        : const Color.fromARGB(255, 166, 48, 48);
+    final String statusText = isRent ? 'Rent' : 'Sell';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 2,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            isRent ? Icons.time_to_leave : Icons.sell,
+            size: 14,
+            color: statusColor,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            statusText,
+            style: TextStyle(
+              fontSize: 12,
+              color: statusColor,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -47,7 +90,6 @@ class CarCard extends StatelessWidget {
 
         if (context.mounted) {
           if (username != null) {
-            // User already logged in, navigate to detail
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -55,7 +97,6 @@ class CarCard extends StatelessWidget {
               ),
             );
           } else {
-            // User not logged in, navigate to login page
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -73,25 +114,34 @@ class CarCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ClipRRect(
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(12),
-              ),
-              child: Image.network(
-                vehicle.fields.linkFoto,
-                height: 200,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
+            Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(12),
+                  ),
+                  child: Image.network(
+                    vehicle.fields.linkFoto,
                     height: 200,
-                    color: Colors.grey[200],
-                    child: const Center(
-                      child: Icon(Icons.error_outline, size: 40),
-                    ),
-                  );
-                },
-              ),
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        height: 200,
+                        color: Colors.grey[200],
+                        child: const Center(
+                          child: Icon(Icons.error_outline, size: 40),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                Positioned(
+                  top: 12,
+                  right: 12,
+                  child: _buildStatusBadge(vehicle.fields.status),
+                ),
+              ],
             ),
             Padding(
               padding: const EdgeInsets.all(16),
@@ -124,13 +174,26 @@ class CarCard extends StatelessWidget {
                           color: const Color(0xFF2B6777),
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        child: Text(
-                          formatPrice(vehicle.fields.harga),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
-                          ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              formatPrice(vehicle.fields.harga),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                            if (vehicle.fields.status == Status.SEWA)
+                              const Text(
+                                '/day',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                ),
+                              ),
+                          ],
                         ),
                       ),
                     ],
