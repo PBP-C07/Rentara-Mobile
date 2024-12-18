@@ -45,32 +45,21 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               Positioned(
-                top: 40,
-                left: 20,
-                child: SafeArea(
-                  child: IconButton(
-                    icon: Icon(Icons.arrow_back_ios, color: Colors.white),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ),
-              ),
-              Positioned(
-                top: size.height * 0.15,
+                top: size.height * 0.05,
                 left: 20,
                 right: 20,
                 child: Container(
-                  height: size.height * 0.25,
+                  height: size.height * 0.45,
                   decoration: BoxDecoration(
                     image: DecorationImage(
                       image: AssetImage('lib/pages/main/assets/car1.png'),
-                      fit: BoxFit.contain,
-                      scale: 0.103,
+                      fit: BoxFit.fitHeight,
                     ),
                   ),
                 ),
               ),
               Positioned(
-                top: size.height * 0.45,
+                top: size.height * 0.50,
                 left: 20,
                 right: 20,
                 child: Container(
@@ -234,7 +223,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              Navigator.push(
+                              Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => const RegisterPage(),
@@ -253,6 +242,16 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ],
                   ),
+                ),
+              ),
+              Positioned(
+                top: 48,
+                left: 16,
+                child: IconButton(
+                  icon: Icon(Icons.arrow_back_ios, color: Colors.white),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
                 ),
               ),
             ],
