@@ -46,9 +46,9 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      initialRoute: '/', // Default route to start with
+      initialRoute: '/',
       routes: {
-        '/profile': (context) => const ProfilePage(), // Named route for ProfilePage
+        '/profile': (context) => const ProfilePage(),
       },
       home: const MyHomePage(),
     );
