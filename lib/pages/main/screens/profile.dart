@@ -189,7 +189,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                           ),
                           child: const Text(
-                            'Login',
+                            'Log In',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,

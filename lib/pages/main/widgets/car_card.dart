@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 class CarCard extends StatelessWidget {
-  final String carName;
   final String brand;
+  final String carName;
   final double rating;
   final int pricePerDay;
   final String fuelType;
@@ -11,8 +11,8 @@ class CarCard extends StatelessWidget {
 
   const CarCard({
     super.key,
-    required this.carName,
     required this.brand,
+    required this.carName,
     required this.rating,
     required this.pricePerDay,
     required this.fuelType,
@@ -42,9 +42,9 @@ class CarCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Car Image Section
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(16)),
               child: Container(
                 height: 120,
                 width: double.infinity,
@@ -60,7 +60,6 @@ class CarCard extends StatelessWidget {
                 ),
               ),
             ),
-            // Car Details Section
             Padding(
               padding: const EdgeInsets.all(12.0),
               child: Column(
