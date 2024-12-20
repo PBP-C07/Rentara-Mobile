@@ -34,8 +34,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     final request = context.read<CookieRequest>();
     try {
-      final response = await request.get(
-          'https://raisa-sakila-rentaraproject.pbp.cs.ui.ac.id/vehicle/json/');
+      final response = await request.get('http://127.0.0.1:8000/vehicle/json/');
 
       if (!mounted) return;
 
