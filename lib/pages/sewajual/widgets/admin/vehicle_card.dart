@@ -146,7 +146,7 @@ class VehicleCard extends StatelessWidget {
                       if (confirm) {
                         try {
                           final response = await request.postJson(
-                            "http://127.0.0.1:8000/vehicles/adm/${vehicle.pk}/delete/",
+                            "https://raisa-sakila-rentaraproject.pbp.cs.ui.ac.id/vehicles/adm/${vehicle.pk}/delete/",
                             "{}",
                           );
                           if (response['status'] == 'success') {

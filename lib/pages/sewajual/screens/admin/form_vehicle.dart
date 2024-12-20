@@ -39,8 +39,8 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
   Future<void> fetchApprovedStores() async {
     try {
       final request = context.read<CookieRequest>();
-      final response =
-          await request.get("http://127.0.0.1:8000/vehicle/get-stores/");
+      final response = await request.get(
+          "https://raisa-sakila-rentaraproject.pbp.cs.ui.ac.id/vehicle/get-stores/");
 
       if (mounted) {
         setState(() {
@@ -351,7 +351,7 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                                       );
 
                                       final response = await request.postJson(
-                                        "http://127.0.0.1:8000/vehicle/create-flutter/",
+                                        "https://raisa-sakila-rentaraproject.pbp.cs.ui.ac.id/vehicle/create-flutter/",
                                         jsonEncode({
                                           'toko': _store,
                                           'merk': _brand,

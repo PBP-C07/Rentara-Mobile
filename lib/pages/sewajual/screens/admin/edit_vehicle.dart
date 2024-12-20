@@ -65,7 +65,7 @@ class _VehicleEditFormPageState extends State<VehicleEditFormPage> {
         };
 
         final response = await request.postJson(
-          "http://127.0.0.1:8000/vehicle/edit-flutter/${widget.vehicle.pk}/",
+          "https://raisa-sakila-rentaraproject.pbp.cs.ui.ac.id/vehicle/edit-flutter/${widget.vehicle.pk}/",
           jsonEncode(requestData),
         );
 
