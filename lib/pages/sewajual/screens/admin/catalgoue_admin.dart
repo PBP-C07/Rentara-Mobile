@@ -8,7 +8,6 @@ import '../../widgets/admin/header_catalogue.dart';
 import '../../widgets/admin/vehicle_card.dart';
 import '../../../main/widgets/navbarAdmin.dart';
 
-// Menampilkan halaman katalog untuk admin
 class ProductCatalogueAdmin extends StatefulWidget {
   const ProductCatalogueAdmin({super.key});
 
@@ -17,20 +16,18 @@ class ProductCatalogueAdmin extends StatefulWidget {
 }
 
 class _ProductCatalogueAdminState extends State<ProductCatalogueAdmin> {
-  // Variabel untuk nerima data untuk fitur search
-  String _searchBar = ''; // Menyimpan text yang ada di search bar
-  List<VehicleEntry> _allVehicles = []; // List semua kendaraan
-  List<VehicleEntry> _filteredVehicles =
-      []; // List kendaraan yang sudah difilter
-  bool _isLoading = true; // Status loading saat searching
+  String _searchBar = '';
+  List<VehicleEntry> _allVehicles = [];
+  List<VehicleEntry> _filteredVehicles = [];
+  bool _isLoading = true;
   Timer? _debounce;
-  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<
-      RefreshIndicatorState>(); // Key untuk fungsi refresh/reload data
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      GlobalKey<RefreshIndicatorState>();
 
   @override
   void initState() {
     super.initState();
-    _initializeData(); // Inisialisasi data saat pertama dibuat
+    _initializeData();
   }
 
   @override
@@ -39,7 +36,6 @@ class _ProductCatalogueAdminState extends State<ProductCatalogueAdmin> {
     super.dispose();
   }
 
-  // Fungsi untuk menginisialisasi data kendaraan
   Future<void> _initializeData() async {
     final request = context.read<CookieRequest>();
     try {
@@ -56,27 +52,20 @@ class _ProductCatalogueAdminState extends State<ProductCatalogueAdmin> {
     }
   }
 
-  // Fungsi asinkronus untuk mengambil data kendaraan dari API
   Future<List<VehicleEntry>> fetchVehicles(CookieRequest request) async {
-    final response = await request.get(
-        'https://raisa-sakila-rentaraproject.pbp.cs.ui.ac.id/vehicle/json/');
+    final response = await request.get('http://127.0.0.1:8000/vehicle/json/');
     return vehicleEntryFromJson(jsonEncode(response));
   }
 
-  // Filter kendaraan berdasarkan pencarian admin
   void _filterVehicles(String query) {
-    // Kalau tidak search apapun di search bar
     if (query.isEmpty) {
       _filteredVehicles = _allVehicles;
       return;
     }
 
     final searchLower = query.toLowerCase();
-    // Filter kendaraan berdasarkan beberapa field
     _filteredVehicles = _allVehicles.where((vehicle) {
       final fields = vehicle.fields;
-
-      // Daftar field yang dapat dicari di search bar
       final searchableStrings = [
         fields.merk.toLowerCase(),
         fields.tipe.toLowerCase(),
@@ -86,13 +75,10 @@ class _ProductCatalogueAdminState extends State<ProductCatalogueAdmin> {
             '',
         bahanBakarValues.reverse[fields.bahanBakar]?.toLowerCase() ?? '',
       ];
-
-      // Mencari apakah query ada dalam salah satu field
       return searchableStrings.any((text) => text.contains(searchLower));
     }).toList();
   }
 
-  // Fungsi untuk menangani input pencarian dengan debouncing
   void _handleSearch(String query) {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
 
@@ -101,7 +87,7 @@ class _ProductCatalogueAdminState extends State<ProductCatalogueAdmin> {
       _isLoading = true;
     });
 
-    _debounce = Timer(const Duration(milliseconds: 500), () {
+    _debounce = Timer(const Duration(milliseconds: 100), () {
       _filterVehicles(query);
       setState(() {
         _isLoading = false;
@@ -109,19 +95,24 @@ class _ProductCatalogueAdminState extends State<ProductCatalogueAdmin> {
     });
   }
 
-  // Fungsi untuk refresh data kendaraan yang akan ditampilkan secara asinkronus
+  void _handleVehicleDelete(int id) {
+    setState(() {
+      _allVehicles.removeWhere((vehicle) => vehicle.pk == id);
+      _filterVehicles(_searchBar);
+    });
+  }
+
   Future<void> refreshData() async {
     setState(() {
-      // Bikin muncul indikator loading
       _isLoading = true;
     });
     final request = context.read<CookieRequest>();
     try {
-      final vehicles = await fetchVehicles(request); // Fetch data dari server
+      final vehicles = await fetchVehicles(request);
       setState(() {
-        _allVehicles = vehicles; // Update semua list berdasarkan hasil fetch
-        _filterVehicles(_searchBar); // Filter kalau ada input di search bar
-        _isLoading = false; // Menghilangkan tanda loading
+        _allVehicles = vehicles;
+        _filterVehicles(_searchBar);
+        _isLoading = false;
       });
     } catch (e) {
       setState(() {
@@ -138,12 +129,9 @@ class _ProductCatalogueAdminState extends State<ProductCatalogueAdmin> {
         child: Stack(
           children: [
             Column(
-              // Main layout terdapat header dan list kendaraan
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header dengan search bar
                 CatalogueHeader(onSearchChanged: _handleSearch),
-                // List kendaraan, bisa discroll
                 Expanded(
                   child: RefreshIndicator(
                     key: _refreshIndicatorKey,
@@ -187,6 +175,13 @@ class _ProductCatalogueAdminState extends State<ProductCatalogueAdmin> {
                                 itemBuilder: (context, index) {
                                   return VehicleCard(
                                     vehicle: _filteredVehicles[index],
+                                    onDelete: (String id) {
+                                      setState(() {
+                                        _allVehicles.removeWhere((vehicle) =>
+                                            vehicle.pk.toString() == id);
+                                        _filterVehicles(_searchBar);
+                                      });
+                                    },
                                     onEditComplete: refreshData,
                                   );
                                 },

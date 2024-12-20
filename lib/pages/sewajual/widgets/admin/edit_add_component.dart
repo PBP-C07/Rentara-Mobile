@@ -6,17 +6,29 @@ class VehicleFormComponents {
   static final backgroundColor = const Color(0xFFF2F2F2);
   static final cardColor = Colors.white;
 
-  static InputDecoration buildInputDecoration(String label, {IconData? icon}) {
+  static Widget buildFormField(String label, {Widget? child, IconData? icon}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: mainColor.withOpacity(0.8),
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 8),
+        child ?? const SizedBox(),
+      ],
+    );
+  }
+
+  static InputDecoration buildInputDecoration({IconData? icon}) {
     return InputDecoration(
-      labelText: label,
       prefixIcon: icon != null
           ? Icon(icon, color: mainColor.withOpacity(0.7), size: 22)
           : null,
-      labelStyle: TextStyle(
-        color: mainColor.withOpacity(0.8),
-        fontSize: 15,
-        fontWeight: FontWeight.w500,
-      ),
       filled: true,
       fillColor: backgroundColor,
       border: OutlineInputBorder(
@@ -47,7 +59,6 @@ class VehicleFormComponents {
         color: mainColor.withOpacity(0.6),
         fontSize: 12,
       ),
-      floatingLabelBehavior: FloatingLabelBehavior.auto,
     );
   }
 

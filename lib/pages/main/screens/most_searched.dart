@@ -70,7 +70,6 @@ class _MostSearchedVehiclesScreenState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Row(
@@ -123,7 +122,6 @@ class _MostSearchedVehiclesScreenState
                 ),
                 child: Column(
                   children: [
-                    // Search Bar
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Container(
@@ -174,7 +172,6 @@ class _MostSearchedVehiclesScreenState
                         ),
                       ),
                     ),
-                    // Results count
                     Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16.0,
@@ -189,7 +186,6 @@ class _MostSearchedVehiclesScreenState
                         ),
                       ),
                     ),
-                    // Vehicle List
                     Expanded(
                       child: _filteredVehicles.isEmpty
                           ? Center(

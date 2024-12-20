@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../models/vehicle_model.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
-
 import '../../widgets/admin/edit_add_component.dart';
 
 class VehicleEditFormPage extends StatefulWidget {
@@ -65,7 +64,7 @@ class _VehicleEditFormPageState extends State<VehicleEditFormPage> {
         };
 
         final response = await request.postJson(
-          "https://raisa-sakila-rentaraproject.pbp.cs.ui.ac.id/vehicle/edit-flutter/${widget.vehicle.pk}/",
+          "http://127.0.0.1:8000/vehicle/edit-flutter/${widget.vehicle.pk}/",
           jsonEncode(requestData),
         );
 
@@ -158,47 +157,56 @@ class _VehicleEditFormPageState extends State<VehicleEditFormPage> {
                           ),
                           VehicleFormComponents.buildImagePreview(_photoLink),
                           const SizedBox(height: 24),
-                          TextFormField(
-                            initialValue: _store,
-                            decoration:
-                                VehicleFormComponents.buildInputDecoration(
-                                    'Store Name',
-                                    icon: Icons.store),
-                            onChanged: (value) =>
-                                setState(() => _store = value),
-                            validator: VehicleFormComponents.validateRequired,
+                          VehicleFormComponents.buildFormField(
+                            'Store Name',
+                            child: TextFormField(
+                              initialValue: _store,
+                              decoration:
+                                  VehicleFormComponents.buildInputDecoration(
+                                      icon: Icons.store),
+                              onChanged: (value) =>
+                                  setState(() => _store = value),
+                              validator: VehicleFormComponents.validateRequired,
+                            ),
                           ),
                           const SizedBox(height: 16),
-                          TextFormField(
-                            initialValue: _brand,
-                            decoration:
-                                VehicleFormComponents.buildInputDecoration(
-                                    'Brand',
-                                    icon: Icons.branding_watermark),
-                            onChanged: (value) =>
-                                setState(() => _brand = value),
-                            validator: VehicleFormComponents.validateRequired,
+                          VehicleFormComponents.buildFormField(
+                            'Brand',
+                            child: TextFormField(
+                              initialValue: _brand,
+                              decoration:
+                                  VehicleFormComponents.buildInputDecoration(
+                                      icon: Icons.branding_watermark),
+                              onChanged: (value) =>
+                                  setState(() => _brand = value),
+                              validator: VehicleFormComponents.validateRequired,
+                            ),
                           ),
                           const SizedBox(height: 16),
-                          TextFormField(
-                            initialValue: _type,
-                            decoration:
-                                VehicleFormComponents.buildInputDecoration(
-                                    'Type',
-                                    icon: Icons.category),
-                            onChanged: (value) => setState(() => _type = value),
-                            validator: VehicleFormComponents.validateRequired,
+                          VehicleFormComponents.buildFormField(
+                            'Type',
+                            child: TextFormField(
+                              initialValue: _type,
+                              decoration:
+                                  VehicleFormComponents.buildInputDecoration(
+                                      icon: Icons.category),
+                              onChanged: (value) =>
+                                  setState(() => _type = value),
+                              validator: VehicleFormComponents.validateRequired,
+                            ),
                           ),
                           const SizedBox(height: 16),
-                          TextFormField(
-                            initialValue: _color,
-                            decoration:
-                                VehicleFormComponents.buildInputDecoration(
-                                    'Color',
-                                    icon: Icons.color_lens),
-                            onChanged: (value) =>
-                                setState(() => _color = value),
-                            validator: VehicleFormComponents.validateRequired,
+                          VehicleFormComponents.buildFormField(
+                            'Color',
+                            child: TextFormField(
+                              initialValue: _color,
+                              decoration:
+                                  VehicleFormComponents.buildInputDecoration(
+                                      icon: Icons.color_lens),
+                              onChanged: (value) =>
+                                  setState(() => _color = value),
+                              validator: VehicleFormComponents.validateRequired,
+                            ),
                           ),
                           const SizedBox(height: 16),
                           VehicleFormComponents.buildDropdownDecoration(
@@ -223,16 +231,18 @@ class _VehicleEditFormPageState extends State<VehicleEditFormPage> {
                             icon: Icons.directions_car,
                           ),
                           const SizedBox(height: 16),
-                          TextFormField(
-                            initialValue: _price.toString(),
-                            decoration:
-                                VehicleFormComponents.buildInputDecoration(
-                                    'Price',
-                                    icon: Icons.attach_money),
-                            keyboardType: TextInputType.number,
-                            onChanged: (value) => setState(
-                                () => _price = int.tryParse(value) ?? 0),
-                            validator: VehicleFormComponents.validatePrice,
+                          VehicleFormComponents.buildFormField(
+                            'Price',
+                            child: TextFormField(
+                              initialValue: _price.toString(),
+                              decoration:
+                                  VehicleFormComponents.buildInputDecoration(
+                                      icon: Icons.attach_money),
+                              keyboardType: TextInputType.number,
+                              onChanged: (value) => setState(
+                                  () => _price = int.tryParse(value) ?? 0),
+                              validator: VehicleFormComponents.validatePrice,
+                            ),
                           ),
                           const SizedBox(height: 16),
                           VehicleFormComponents.buildDropdownDecoration(
@@ -255,16 +265,18 @@ class _VehicleEditFormPageState extends State<VehicleEditFormPage> {
                             icon: Icons.info_outline,
                           ),
                           const SizedBox(height: 16),
-                          TextFormField(
-                            initialValue: _phone,
-                            decoration:
-                                VehicleFormComponents.buildInputDecoration(
-                                    'Phone Number',
-                                    icon: Icons.phone),
-                            keyboardType: TextInputType.phone,
-                            onChanged: (value) =>
-                                setState(() => _phone = value),
-                            validator: VehicleFormComponents.validatePhone,
+                          VehicleFormComponents.buildFormField(
+                            'Phone Number',
+                            child: TextFormField(
+                              initialValue: _phone,
+                              decoration:
+                                  VehicleFormComponents.buildInputDecoration(
+                                      icon: Icons.phone),
+                              keyboardType: TextInputType.phone,
+                              onChanged: (value) =>
+                                  setState(() => _phone = value),
+                              validator: VehicleFormComponents.validatePhone,
+                            ),
                           ),
                           const SizedBox(height: 16),
                           VehicleFormComponents.buildDropdownDecoration(
@@ -287,26 +299,30 @@ class _VehicleEditFormPageState extends State<VehicleEditFormPage> {
                             icon: Icons.local_gas_station,
                           ),
                           const SizedBox(height: 16),
-                          TextFormField(
-                            initialValue: _locationLink,
-                            decoration:
-                                VehicleFormComponents.buildInputDecoration(
-                                    'Location Link',
-                                    icon: Icons.location_on),
-                            onChanged: (value) =>
-                                setState(() => _locationLink = value),
-                            validator: VehicleFormComponents.validateUrl,
+                          VehicleFormComponents.buildFormField(
+                            'Location Link',
+                            child: TextFormField(
+                              initialValue: _locationLink,
+                              decoration:
+                                  VehicleFormComponents.buildInputDecoration(
+                                      icon: Icons.location_on),
+                              onChanged: (value) =>
+                                  setState(() => _locationLink = value),
+                              validator: VehicleFormComponents.validateUrl,
+                            ),
                           ),
                           const SizedBox(height: 16),
-                          TextFormField(
-                            initialValue: _photoLink,
-                            decoration:
-                                VehicleFormComponents.buildInputDecoration(
-                                    'Photo Link',
-                                    icon: Icons.photo),
-                            onChanged: (value) =>
-                                setState(() => _photoLink = value),
-                            validator: VehicleFormComponents.validateUrl,
+                          VehicleFormComponents.buildFormField(
+                            'Photo Link',
+                            child: TextFormField(
+                              initialValue: _photoLink,
+                              decoration:
+                                  VehicleFormComponents.buildInputDecoration(
+                                      icon: Icons.photo),
+                              onChanged: (value) =>
+                                  setState(() => _photoLink = value),
+                              validator: VehicleFormComponents.validateUrl,
+                            ),
                           ),
                           const SizedBox(height: 32),
                           SizedBox(

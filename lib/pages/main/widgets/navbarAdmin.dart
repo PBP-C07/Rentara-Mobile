@@ -61,12 +61,9 @@ class NavBarBottomAdmin extends StatelessWidget {
               icon: const Icon(Icons.person_outline, color: Colors.white),
               onPressed: () async {
                 final request = context.read<CookieRequest>();
-                print("Current cookies: ${request.cookies}");
-                print("Attempting logout...");
                 final response = await request.logout(
-                  "https://raisa-sakila-rentaraproject.pbp.cs.ui.ac.id/auth/logout/",
+                  "http://127.0.0.1:8000/auth/logout/",
                 );
-                print("Logout response: $response");
                 if (response['status'] == true) {
                   final prefs = await SharedPreferences.getInstance();
                   await prefs.clear();
