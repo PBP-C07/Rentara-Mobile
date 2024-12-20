@@ -23,7 +23,7 @@ class PartnerCard extends StatelessWidget {
   static Future<void> deletePartner(String partnerId, CookieRequest request, BuildContext context) async {
     try {
       final response = await request.get(
-        'http://127.0.0.1:8000/delete_partner_flutter/$partnerId/',
+        'https://raisa-sakila-rentaraproject.pbp.cs.ui.ac.id/delete_partner_flutter/$partnerId/',
       );
       print(response);
 

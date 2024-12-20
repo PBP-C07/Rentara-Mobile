@@ -39,7 +39,7 @@ class _EditVehiclePageState extends State<EditVehiclePage> {
 
   void _fetchPartnerData(CookieRequest request) async {
   try {
-    final response = await request.get('http://127.0.0.1:8000/get_partner/');
+    final response = await request.get('https://raisa-sakila-rentaraproject.pbp.cs.ui.ac.id/get_partner/');
     
     // Pastikan respons dapat di-decode sebagai JSON
     if (response is Map<String, dynamic> && response['status'] == 'Approved') {
@@ -67,7 +67,7 @@ class _EditVehiclePageState extends State<EditVehiclePage> {
 
     try {
       final response = await request.get(
-        'http://127.0.0.1:8000/vehicle_detail_flutter/$vehicleID/',
+        'https://raisa-sakila-rentaraproject.pbp.cs.ui.ac.id/vehicle_detail_flutter/$vehicleID/',
       );
       print('Response: ${response.toString()}'); 
 
@@ -143,7 +143,7 @@ class _EditVehiclePageState extends State<EditVehiclePage> {
     try {
       final CookieRequest request = Provider.of<CookieRequest>(context, listen: false);
       final response = await request.post(
-        'http://127.0.0.1:8000/edit_vehicle_flutter/$vehicleId/',
+        'https://raisa-sakila-rentaraproject.pbp.cs.ui.ac.id/edit_vehicle_flutter/$vehicleId/',
         jsonEncode(updatedData),
       );
 
@@ -151,6 +151,7 @@ class _EditVehiclePageState extends State<EditVehiclePage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Vehicle updated successfully!')),
         );
+        Navigator.pop(context);
          Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => ListProductPage()),

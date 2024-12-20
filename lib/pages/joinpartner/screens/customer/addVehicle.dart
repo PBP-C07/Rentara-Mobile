@@ -43,7 +43,7 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
 
   void _fetchPartnerData(CookieRequest request) async {
   try {
-    final response = await request.get('http://127.0.0.1:8000/get_partner/');
+    final response = await request.get('https://raisa-sakila-rentaraproject.pbp.cs.ui.ac.id/get_partner/');
     
     // Pastikan respons dapat di-decode sebagai JSON
     if (response is Map<String, dynamic> && response['status'] == 'Approved') {
@@ -88,7 +88,7 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
       try {
         final CookieRequest request = Provider.of<CookieRequest>(context, listen: false);
         final response = await request.post(
-          'http://127.0.0.1:8000/create_vehicle_flutter/',
+          'https://raisa-sakila-rentaraproject.pbp.cs.ui.ac.id/create_vehicle_flutter/',
           jsonEncode(vehicleData),
         );
 
