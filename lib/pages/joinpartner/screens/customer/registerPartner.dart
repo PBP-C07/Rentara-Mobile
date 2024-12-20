@@ -61,7 +61,7 @@ class _RegisterPartnerPageState extends State<RegisterPartnerPage> {
     try {
       final CookieRequest request = Provider.of<CookieRequest>(context, listen: false);
       final response = await request.post(
-        'http://127.0.0.1:8000/create_partner_flutter/',
+        'https://raisa-sakila-rentaraproject.pbp.cs.ui.ac.id/create_partner_flutter/',
         jsonEncode(partnerData),
       );
 

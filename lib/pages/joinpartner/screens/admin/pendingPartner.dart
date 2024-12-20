@@ -72,7 +72,7 @@ class _PendingPartnerScreenState extends State<PendingPartnerScreen> {
 
   Future<void> _fetchPartners(CookieRequest request) async {
     try {
-      final response = await request.get('http://127.0.0.1:8000/partner_json/');
+      final response = await request.get('https://raisa-sakila-rentaraproject.pbp.cs.ui.ac.id/partner_json/');
       if (response is List) {
         List<Partner> partners =
             response.map((json) => Partner.fromJson(json)).toList();
@@ -181,7 +181,7 @@ class PendingPartnerCard extends StatelessWidget {
 
     try {
       final response = await request.post(
-        'http://127.0.0.1:8000/edit_partner_flutter/$id/', jsonEncode(data),
+        'https://raisa-sakila-rentaraproject.pbp.cs.ui.ac.id/edit_partner_flutter/$id/', jsonEncode(data),
       );
 
       if (response['status'] == 'success') {

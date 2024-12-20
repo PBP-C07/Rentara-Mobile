@@ -57,7 +57,7 @@ class _PartnerListScreenState extends State<PartnerListScreen> {
 
   Future<List<Partner>> fetchPartners(CookieRequest request) async {
   try {
-    final response = await request.get('http://127.0.0.1:8000/partner_json/');
+    final response = await request.get('https://raisa-sakila-rentaraproject.pbp.cs.ui.ac.id/partner_json/');
 
     // Pastikan tipe data response benar
     if (response is List) {

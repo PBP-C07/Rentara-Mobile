@@ -52,7 +52,7 @@ class ManagePartnerScreen extends StatelessWidget {
 
   Future<Map<String, List<Partner>>> fetchPartners(CookieRequest request) async {
     try {
-      final response = await request.get('http://127.0.0.1:8000/partner_json/');
+      final response = await request.get('https://raisa-sakila-rentaraproject.pbp.cs.ui.ac.id/partner_json/');
 
       if (response is List) {
         List<Partner> partners = response.map((json) => Partner.fromJson(json)).toList();
@@ -212,7 +212,7 @@ class ManagePartnerScreen extends StatelessWidget {
                     onPressed: () async {
                       try {
                         final response = await request.logout(
-                          "http://127.0.0.1:8000/auth/logout/",
+                          "https://raisa-sakila-rentaraproject.pbp.cs.ui.ac.id/auth/logout/",
                         );
                         if (response['status'] == true) {
                           final prefs = await SharedPreferences.getInstance();

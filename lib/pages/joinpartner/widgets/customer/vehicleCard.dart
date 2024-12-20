@@ -26,7 +26,7 @@ class VehicleCard extends StatelessWidget {
     try {
       // Memanggil endpoint API DELETE
       final response = await request.get(
-        'http://127.0.0.1:8000/delete_vehicle_flutter/$vehicleId/',
+        'https://raisa-sakila-rentaraproject.pbp.cs.ui.ac.id/delete_vehicle_flutter/$vehicleId/',
       );
 
       if (response["message"]=="Vehicle deleted successfully") {
@@ -163,10 +163,10 @@ class VehicleCard extends StatelessWidget {
                         onPressed: () {
                           // Panggil fungsi delete
                           deleteVehicle(vehicleId, request, context);
-                           Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (context) => ListProductPage()),
-                          );
+                          //  Navigator.pushReplacement(
+                          //   context,
+                          //   MaterialPageRoute(builder: (context) => ListProductPage()),
+                          // );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color(0xFF832424),
