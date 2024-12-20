@@ -8,59 +8,189 @@ class CarDetailScreen extends StatelessWidget {
 
   const CarDetailScreen({Key? key, required this.vehicle}) : super(key: key);
 
+  Future<void> _launchMaps(BuildContext context) async {
+    try {
+      final Uri url = Uri.parse(vehicle.fields.linkLokasi);
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+      } else {
+        _showErrorSnackBar(context, "Couldn't open maps");
+      }
+    } catch (e) {
+      _showErrorSnackBar(context, "Error opening maps");
+    }
+  }
+
+  void _showErrorSnackBar(BuildContext context, String message) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: const Color.fromARGB(255, 138, 38, 31),
+        ),
+      );
+    }
+  }
+
+  Widget _buildButton({
+    required IconData icon,
+    required VoidCallback onPressed,
+    Color? iconColor,
+    Color? backgroundColor,
+  }) {
+    return InkWell(
+      onTap: onPressed,
+      borderRadius: BorderRadius.circular(30),
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: backgroundColor ?? Colors.white,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              spreadRadius: 1,
+              blurRadius: 2,
+              offset: const Offset(0, 1),
+            ),
+          ],
+        ),
+        child: Icon(
+          icon,
+          color: iconColor ?? Colors.black87,
+          size: 24,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMoreInfo({
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: const Color(0xFF2B6777).withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            icon,
+            color: const Color(0xFF2B6777),
+            size: 24,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          label,
+          style: const TextStyle(
+            color: Colors.grey,
+            fontSize: 14,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoContainer(Widget child) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: child,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final bool isRent = vehicle.fields.status == Status.SEWA;
+
     return Scaffold(
-      body: SafeArea(
-        child: Stack(
-          children: [
-            SingleChildScrollView(
-              padding: const EdgeInsets.only(bottom: 100),
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Stack(
                     children: [
-                      Container(
-                        height: 250,
+                      Image.network(
+                        vehicle.fields.linkFoto,
+                        height: 300,
                         width: double.infinity,
-                        child: Image.network(
-                          vehicle.fields.linkFoto,
-                          fit: BoxFit.cover,
-                        ),
+                        fit: BoxFit.cover,
                       ),
-                      Positioned(
-                        top: 16,
-                        left: 16,
+                      Positioned.fill(
                         child: Container(
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                          ),
-                          child: IconButton(
-                            icon: const Icon(Icons.arrow_back),
-                            onPressed: () => Navigator.pop(context),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.center,
+                              colors: [
+                                Colors.black.withOpacity(0.4),
+                                Colors.transparent,
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                      Positioned(
-                        top: 16,
-                        right: 16,
-                        child: Container(
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                          ),
-                          child: IconButton(
-                            icon: const Icon(Icons.favorite_border),
-                            onPressed: () {},
+                      SafeArea(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              _buildButton(
+                                icon: Icons.arrow_back,
+                                onPressed: () => Navigator.pop(context),
+                              ),
+                              _buildButton(
+                                icon: Icons.favorite_border,
+                                onPressed: () {},
+                              ),
+                            ],
                           ),
                         ),
                       ),
                     ],
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.all(16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -79,78 +209,93 @@ class CarDetailScreen extends StatelessWidget {
                             ElevatedButton(
                               onPressed: () {},
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF2B6777),
+                                backgroundColor: isRent
+                                    ? const Color.fromARGB(255, 71, 132, 111)
+                                    : const Color.fromARGB(255, 166, 48, 48),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(20),
                                 ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 24,
+                                  vertical: 12,
+                                ),
                               ),
-                              child: const Text(
-                                'RENT',
-                                style: TextStyle(
+                              child: Text(
+                                isRent ? 'RENT' : 'SELL',
+                                style: const TextStyle(
                                   color: Colors.white,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ),
                           ],
                         ),
-                        Row(
-                          children: const [
-                            Icon(Icons.star, color: Colors.amber, size: 20),
-                            Text(' 4.5 (20 reviews)'),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-                        const Text(
-                          'More Information',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        const SizedBox(height: 8),
+                        const Row(
                           children: [
-                            _buildFeatureItem(
-                              title: vehicle.fields.warna,
-                              icon: Icons.palette,
+                            Icon(Icons.star, color: Colors.amber, size: 20),
+                            SizedBox(width: 4),
+                            Text(
+                              '4.5',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                            _buildFeatureItem(
-                              title: bahanBakarValues
-                                  .reverse[vehicle.fields.bahanBakar]!,
-                              icon: Icons.local_gas_station,
+                            Text(
+                              ' (20 reviews)',
+                              style: TextStyle(color: Colors.grey),
                             ),
                           ],
                         ),
                         const SizedBox(height: 24),
-                        const Text(
-                          'Store Information',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 12, horizontal: 16),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(8),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.1),
-                                spreadRadius: 1,
-                                blurRadius: 4,
-                                offset: const Offset(0, 1),
+                        _buildSectionTitle('More Information'),
+                        _buildInfoContainer(
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildMoreInfo(
+                                  icon: Icons.palette,
+                                  label: 'Color',
+                                  value: vehicle.fields.warna,
+                                ),
+                              ),
+                              Container(
+                                height: 80,
+                                width: 1,
+                                color: Colors.grey.withOpacity(0.2),
+                              ),
+                              Expanded(
+                                child: _buildMoreInfo(
+                                  icon: Icons.local_gas_station,
+                                  label: 'Fuel Type',
+                                  value: bahanBakarValues
+                                      .reverse[vehicle.fields.bahanBakar]!,
+                                ),
                               ),
                             ],
                           ),
-                          child: Column(
+                        ),
+                        const SizedBox(height: 24),
+                        _buildSectionTitle('Store Information'),
+                        _buildInfoContainer(
+                          Column(
                             children: [
                               Row(
                                 children: [
-                                  Icon(Icons.store, color: Colors.grey[700]),
+                                  Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF2B6777)
+                                          .withOpacity(0.1),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.store,
+                                      color: Color(0xFF2B6777),
+                                      size: 24,
+                                    ),
+                                  ),
                                   const SizedBox(width: 12),
                                   Text(
                                     vehicle.fields.toko,
@@ -163,18 +308,28 @@ class CarDetailScreen extends StatelessWidget {
                               ),
                               const Divider(height: 24),
                               InkWell(
-                                onTap: () {},
-                                child: Row(
+                                onTap: () => _launchMaps(context),
+                                child: const Row(
                                   children: [
-                                    Icon(Icons.location_on,
-                                        color: Colors.grey[700]),
-                                    const SizedBox(width: 12),
-                                    const Text(
-                                      'View Location',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
+                                    Icon(
+                                      Icons.location_on,
+                                      color: Color(0xFF2B6777),
+                                      size: 24,
+                                    ),
+                                    SizedBox(width: 12),
+                                    Expanded(
+                                      child: Text(
+                                        'View Location',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                        ),
                                       ),
+                                    ),
+                                    Icon(
+                                      Icons.arrow_forward_ios,
+                                      size: 16,
+                                      color: Colors.grey,
                                     ),
                                   ],
                                 ),
@@ -188,65 +343,14 @@ class CarDetailScreen extends StatelessWidget {
                 ],
               ),
             ),
-            Positioned(
-              bottom: 90,
-              left: 0,
-              right: 0,
-              child: Container(
-                height: 40,
-                decoration: const BoxDecoration(
-                  image: DecorationImage(
-                    image: NetworkImage(
-                        'https://static.vecteezy.com/system/resources/previews/001/214/732/original/black-and-yellow-stripes-pattern-vector.jpg'),
-                    repeat: ImageRepeat.repeatX,
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: BottomPriceDrawer(
-                price: 'Rp ${vehicle.fields.harga}/day',
-                onContactPressed: () async {
-                  final url =
-                      'https://wa.me/${vehicle.fields.notelp.replaceAll(RegExp(r'[^\d+]'), '')}';
-                  if (await canLaunchUrl(Uri.parse(url))) {
-                    await launchUrl(Uri.parse(url));
-                  } else {
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Couldn't launch WhatsApp"),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                    }
-                  }
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFeatureItem({required String title, required IconData icon}) {
-    return Column(
-      children: [
-        Icon(icon, size: 24, color: Colors.grey[700]),
-        const SizedBox(height: 8),
-        Text(
-          title,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Colors.grey[600],
-            fontSize: 14,
           ),
-        ),
-      ],
+          BottomPriceDrawer(
+            price: '${vehicle.fields.harga}',
+            phoneNumber: vehicle.fields.notelp,
+            isRent: isRent,
+          ),
+        ],
+      ),
     );
   }
 }

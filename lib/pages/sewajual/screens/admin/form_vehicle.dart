@@ -4,6 +4,7 @@ import '../../models/vehicle_model.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import '../../../main/widgets/navbarAdmin.dart';
+import '../../widgets/admin/edit_add_component.dart';
 
 class VehicleEntryFormPage extends StatefulWidget {
   const VehicleEntryFormPage({super.key});
@@ -56,62 +57,10 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
         setState(() {
           _isLoading = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Error loading stores: ${e.toString()}"),
-            backgroundColor: Colors.red,
-          ),
-        );
+        VehicleFormComponents.showErrorSnackBar(
+            context, "Error loading stores: ${e.toString()}");
       }
     }
-  }
-
-  InputDecoration _buildInputDecoration(String label) {
-    return InputDecoration(
-      labelText: label,
-      labelStyle: const TextStyle(
-        color: Color(0xFF2B6777),
-        fontSize: 16,
-      ),
-      filled: true,
-      fillColor: Colors.grey[50],
-      border: UnderlineInputBorder(
-        borderSide: BorderSide(color: const Color(0xFF2B6777).withOpacity(0.2)),
-      ),
-      enabledBorder: UnderlineInputBorder(
-        borderSide: BorderSide(color: const Color(0xFF2B6777).withOpacity(0.2)),
-      ),
-      focusedBorder: const UnderlineInputBorder(
-        borderSide: BorderSide(color: Color(0xFF2B6777), width: 2),
-      ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 16),
-    );
-  }
-
-  Widget _buildDropdownDecoration(String label, Widget child) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            color: Color(0xFF2B6777),
-            fontSize: 16,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(
-            border: Border(
-              bottom: BorderSide(
-                color: const Color(0xFF2B6777).withOpacity(0.2),
-              ),
-            ),
-          ),
-          child: child,
-        ),
-      ],
-    );
   }
 
   Widget _buildStoreDropdown() {
@@ -120,13 +69,11 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
     }
 
     if (_storeList.isEmpty) {
-      return const Text(
-        "No approved stores available",
-        style: TextStyle(color: Colors.red),
-      );
+      return const Text("No stores available!",
+          style: TextStyle(color: Colors.red));
     }
 
-    return _buildDropdownDecoration(
+    return VehicleFormComponents.buildDropdownDecoration(
       'Store Name',
       DropdownButtonFormField<String>(
         value: _store,
@@ -140,7 +87,7 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
             child: Text(store),
           );
         }).toList(),
-        validator: (value) => value == null ? "Please select a store" : null,
+        validator: VehicleFormComponents.validateRequired,
         onChanged: (String? newValue) {
           setState(() {
             _store = newValue;
@@ -150,74 +97,11 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
     );
   }
 
-  Widget _buildImagePreview() {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 16),
-      width: double.infinity,
-      height: 200,
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(
-          color: const Color(0xFF2B6777).withOpacity(0.2),
-        ),
-      ),
-      child: _photoLink.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.photo_camera, size: 48, color: Colors.grey[400]),
-                  const SizedBox(height: 8),
-                  Text(
-                    'No image preview',
-                    style: TextStyle(color: Colors.grey[600]),
-                  ),
-                ],
-              ),
-            )
-          : ClipRRect(
-              borderRadius: BorderRadius.circular(15),
-              child: Image.network(
-                _photoLink,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.broken_image,
-                          size: 48, color: Colors.grey[400]),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Invalid image URL',
-                        style: TextStyle(color: Colors.grey[600]),
-                      ),
-                    ],
-                  ),
-                ),
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Center(
-                    child: CircularProgressIndicator(
-                      color: const Color(0xFF2B6777),
-                      value: loadingProgress.expectedTotalBytes != null
-                          ? loadingProgress.cumulativeBytesLoaded /
-                              loadingProgress.expectedTotalBytes!
-                          : null,
-                    ),
-                  );
-                },
-              ),
-            ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
-
     return Scaffold(
-      backgroundColor: const Color(0xFF2B6777),
+      backgroundColor: VehicleFormComponents.mainColor,
       body: SafeArea(
         child: Stack(
           children: [
@@ -230,32 +114,54 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                     padding: const EdgeInsets.all(20.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text(
-                          'Add New Vehicle',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 28,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 1.2,
-                            height: 1.2,
-                            shadows: [
-                              Shadow(
-                                offset: Offset(1, 1),
-                                blurRadius: 3.0,
-                                color: Color.fromARGB(50, 0, 0, 0),
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                            ],
-                          ),
-                        ),
-                        Text(
-                          'List your vehicle for rent',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w400,
-                            color: Colors.white70,
-                            letterSpacing: 0.5,
-                          ),
+                              child: IconButton(
+                                icon: const Icon(Icons.arrow_back,
+                                    color: Colors.white),
+                                onPressed: () => Navigator.pop(context),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            const Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Add New Vehicle',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.w800,
+                                      letterSpacing: 1.2,
+                                      height: 1.2,
+                                      shadows: [
+                                        Shadow(
+                                            offset: Offset(1, 1),
+                                            blurRadius: 3.0,
+                                            color: Color.fromARGB(50, 0, 0, 0))
+                                      ],
+                                    ),
+                                  ),
+                                  Text(
+                                    'List vehicle for rent and sell',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w400,
+                                      color: Colors.white70,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -275,43 +181,49 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               'Vehicle Details',
                               style: TextStyle(
-                                color: Color(0xFF2B6777),
+                                color: VehicleFormComponents.mainColor,
                                 fontSize: 20,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                            _buildImagePreview(),
+                            VehicleFormComponents.buildImagePreview(_photoLink),
                             const SizedBox(height: 24),
                             _buildStoreDropdown(),
                             const SizedBox(height: 16),
                             TextFormField(
-                              decoration: _buildInputDecoration('Brand'),
+                              decoration:
+                                  VehicleFormComponents.buildInputDecoration(
+                                      'Brand',
+                                      icon: Icons.branding_watermark),
                               onChanged: (value) =>
                                   setState(() => _brand = value),
-                              validator: (value) =>
-                                  value?.isEmpty ?? true ? "Required" : null,
+                              validator: VehicleFormComponents.validateRequired,
                             ),
                             const SizedBox(height: 16),
                             TextFormField(
-                              decoration: _buildInputDecoration('Type'),
+                              decoration:
+                                  VehicleFormComponents.buildInputDecoration(
+                                      'Type',
+                                      icon: Icons.category),
                               onChanged: (value) =>
                                   setState(() => _type = value),
-                              validator: (value) =>
-                                  value?.isEmpty ?? true ? "Required" : null,
+                              validator: VehicleFormComponents.validateRequired,
                             ),
                             const SizedBox(height: 16),
                             TextFormField(
-                              decoration: _buildInputDecoration('Color'),
+                              decoration:
+                                  VehicleFormComponents.buildInputDecoration(
+                                      'Color',
+                                      icon: Icons.color_lens),
                               onChanged: (value) =>
                                   setState(() => _color = value),
-                              validator: (value) =>
-                                  value?.isEmpty ?? true ? "Required" : null,
+                              validator: VehicleFormComponents.validateRequired,
                             ),
                             const SizedBox(height: 16),
-                            _buildDropdownDecoration(
+                            VehicleFormComponents.buildDropdownDecoration(
                               'Vehicle Type',
                               DropdownButtonHideUnderline(
                                 child: DropdownButton<JenisKendaraan>(
@@ -330,24 +242,21 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                                           value ?? JenisKendaraan.MOBIL),
                                 ),
                               ),
+                              icon: Icons.directions_car,
                             ),
                             const SizedBox(height: 16),
                             TextFormField(
-                              decoration: _buildInputDecoration('Price'),
+                              decoration:
+                                  VehicleFormComponents.buildInputDecoration(
+                                      'Price',
+                                      icon: Icons.attach_money),
                               keyboardType: TextInputType.number,
                               onChanged: (value) => setState(
                                   () => _price = int.tryParse(value) ?? 0),
-                              validator: (value) {
-                                if (value?.isEmpty ?? true) return "Required";
-                                if (int.tryParse(value!) == null)
-                                  return "Must be a number";
-                                if (int.parse(value) < 1)
-                                  return "Must be positive";
-                                return null;
-                              },
+                              validator: VehicleFormComponents.validatePrice,
                             ),
                             const SizedBox(height: 16),
-                            _buildDropdownDecoration(
+                            VehicleFormComponents.buildDropdownDecoration(
                               'Status',
                               DropdownButtonHideUnderline(
                                 child: DropdownButton<Status>(
@@ -364,22 +273,21 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                                       () => _status = value ?? Status.SEWA),
                                 ),
                               ),
+                              icon: Icons.info_outline,
                             ),
                             const SizedBox(height: 16),
                             TextFormField(
-                              decoration: _buildInputDecoration('Phone Number'),
+                              decoration:
+                                  VehicleFormComponents.buildInputDecoration(
+                                      'Phone Number',
+                                      icon: Icons.phone),
                               keyboardType: TextInputType.phone,
                               onChanged: (value) =>
                                   setState(() => _phone = value),
-                              validator: (value) {
-                                if (value?.isEmpty ?? true) return "Required";
-                                if (!RegExp(r'^\d{10,13}$').hasMatch(value!))
-                                  return "Invalid format";
-                                return null;
-                              },
+                              validator: VehicleFormComponents.validatePhone,
                             ),
                             const SizedBox(height: 16),
-                            _buildDropdownDecoration(
+                            VehicleFormComponents.buildDropdownDecoration(
                               'Fuel Type',
                               DropdownButtonHideUnderline(
                                 child: DropdownButton<BahanBakar>(
@@ -396,45 +304,35 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                                       _fuelType = value ?? BahanBakar.BENSIN),
                                 ),
                               ),
+                              icon: Icons.local_gas_station,
                             ),
                             const SizedBox(height: 16),
                             TextFormField(
                               decoration:
-                                  _buildInputDecoration('Location Link'),
+                                  VehicleFormComponents.buildInputDecoration(
+                                      'Location Link',
+                                      icon: Icons.location_on),
                               onChanged: (value) =>
                                   setState(() => _locationLink = value),
-                              validator: (value) {
-                                if (value?.isEmpty ?? true) return "Required";
-                                if (!Uri.parse(value!).isAbsolute)
-                                  return "Invalid URL";
-                                return null;
-                              },
+                              validator: VehicleFormComponents.validateUrl,
                             ),
                             const SizedBox(height: 16),
                             TextFormField(
-                              decoration: _buildInputDecoration('Photo Link'),
-                              onChanged: (value) {
-                                setState(() => _photoLink = value);
-                              },
-                              validator: (value) {
-                                if (value?.isEmpty ?? true) return "Required";
-                                if (!Uri.parse(value!).isAbsolute)
-                                  return "Invalid URL";
-                                return null;
-                              },
+                              decoration:
+                                  VehicleFormComponents.buildInputDecoration(
+                                      'Photo Link',
+                                      icon: Icons.photo),
+                              onChanged: (value) =>
+                                  setState(() => _photoLink = value),
+                              validator: VehicleFormComponents.validateUrl,
                             ),
                             const SizedBox(height: 32),
                             SizedBox(
                               width: double.infinity,
                               height: 50,
                               child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF2B6777),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(25),
-                                  ),
-                                  elevation: 2,
-                                ),
+                                style: VehicleFormComponents
+                                    .buildSubmitButtonStyle(),
                                 onPressed: () async {
                                   if (_formKey.currentState!.validate()) {
                                     try {
@@ -442,8 +340,12 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                                         context: context,
                                         barrierDismissible: false,
                                         builder: (BuildContext context) {
-                                          return const Center(
-                                            child: CircularProgressIndicator(),
+                                          return WillPopScope(
+                                            onWillPop: () async => false,
+                                            child: const Center(
+                                              child:
+                                                  CircularProgressIndicator(),
+                                            ),
                                           );
                                         },
                                       );
@@ -469,64 +371,46 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                                         }),
                                       );
 
-                                      if (context.mounted) {
-                                        Navigator.of(context).pop();
-                                      }
+                                      if (!mounted) return;
+                                      Navigator.of(context).pop();
 
-                                      if (context.mounted) {
-                                        if (response['status'] == 'success') {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            const SnackBar(
-                                              content: Text(
-                                                  "Vehicle saved successfully!"),
-                                              backgroundColor: Colors.green,
-                                            ),
-                                          );
+                                      if (response['status'] == 'success') {
+                                        VehicleFormComponents
+                                            .showSuccessSnackBar(context,
+                                                "Vehicle saved successfully!");
 
-                                          _formKey.currentState!.reset();
-                                          setState(() {
-                                            _vehicleType = JenisKendaraan.MOBIL;
-                                            _status = Status.SEWA;
-                                            _fuelType = BahanBakar.BENSIN;
-                                            _photoLink = '';
-                                          });
-
-                                          if (context.mounted &&
-                                              Navigator.of(context).canPop()) {
-                                            Navigator.of(context).pop();
-                                          } else {
-                                            Navigator.pushReplacementNamed(
-                                                context, '/vehicles/adm/');
+                                        // Reset form
+                                        _formKey.currentState!.reset();
+                                        setState(() {
+                                          _brand = "";
+                                          _type = "";
+                                          _color = "";
+                                          _vehicleType = JenisKendaraan.MOBIL;
+                                          _price = 0;
+                                          _status = Status.SEWA;
+                                          _phone = "";
+                                          _fuelType = BahanBakar.BENSIN;
+                                          _locationLink = "";
+                                          _photoLink = "";
+                                          if (_storeList.isNotEmpty) {
+                                            _store = _storeList[0];
                                           }
-                                        } else {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                              content: Text(response[
-                                                      'message'] ??
-                                                  "Error occurred. Please try again."),
-                                              backgroundColor: Colors.red,
-                                            ),
-                                          );
-                                        }
+                                        });
+                                      } else {
+                                        VehicleFormComponents.showErrorSnackBar(
+                                            context,
+                                            response['message'] ??
+                                                "Error. Please try again.");
                                       }
                                     } catch (e) {
-                                      if (context.mounted &&
-                                          Navigator.of(context).canPop()) {
+                                      if (!mounted) return;
+
+                                      if (Navigator.canPop(context)) {
                                         Navigator.of(context).pop();
                                       }
 
-                                      if (context.mounted) {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          SnackBar(
-                                            content:
-                                                Text("Error: ${e.toString()}"),
-                                            backgroundColor: Colors.red,
-                                          ),
-                                        );
-                                      }
+                                      VehicleFormComponents.showErrorSnackBar(
+                                          context, "Error: ${e.toString()}");
                                     }
                                   }
                                 },

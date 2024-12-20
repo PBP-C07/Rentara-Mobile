@@ -40,6 +40,7 @@ dependencies:
   provider: ^6.1.2
   pbp_django_auth: ^0.4.0
   shared_preferences: ^2.2.1
+  intl: ^0.18.0
 
 dev_dependencies:
   flutter_test:
@@ -59,6 +60,7 @@ dev_dependencies:
 flutter:
   assets:
     - lib/pages/main/assets/rentara_logo.png
+    - lib/pages/main/assets/car1.png
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
