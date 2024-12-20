@@ -44,7 +44,8 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<bool> checkPartnerStatus(CookieRequest request) async {
     try {
       // Mengirimkan permintaan GET ke server
-      final response = await request.get('http://127.0.0.1:8000/check_status/');
+      final response = await request.get(
+          'https://raisa-sakila-rentaraproject.pbp.cs.ui.ac.id/check_status/');
       print(response);
 
       return response['is_partner'] ?? false;
@@ -327,8 +328,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       InkWell(
                         onTap: () async {
                           try {
-                            final response = await request
-                                .get('http://127.0.0.1:8000/check_status/');
+                            final response = await request.get(
+                                'https://raisa-sakila-rentaraproject.pbp.cs.ui.ac.id/check_status/');
                             bool isPartner = await checkPartnerStatus(request);
                             // String status = response['status'];
                             print(response);
@@ -379,8 +380,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       InkWell(
                         onTap: () async {
                           try {
-                            final response = await request
-                                .get('http://127.0.0.1:8000/check_status/');
+                            final response = await request.get(
+                                'https://raisa-sakila-rentaraproject.pbp.cs.ui.ac.id/check_status/');
                             bool isPartner = await checkPartnerStatus(request);
                             // String status = response['status'];
                             print(response);
@@ -445,7 +446,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         child: ElevatedButton(
                           onPressed: () async {
                             final response = await request.logout(
-                              "http://127.0.0.1:8000/auth/logout/",
+                              "https://raisa-sakila-rentaraproject.pbp.cs.ui.ac.id/auth/logout/",
                             );
                             if (response['status'] == true) {
                               final prefs =

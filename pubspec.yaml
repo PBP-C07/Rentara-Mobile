@@ -61,6 +61,9 @@ flutter:
   assets:
     - lib/pages/main/assets/rentara_logo.png
     - lib/pages/main/assets/car1.png
+    - lib/pages/main/assets/pantai.png
+    - lib/pages/main/assets/rinjani.jpg
+    - lib/pages/main/assets/islam_center.jpg
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

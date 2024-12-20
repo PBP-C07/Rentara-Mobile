@@ -53,7 +53,8 @@ class _CarCatalogueScreenState extends State<CarCatalogueScreen> {
   }
 
   Future<List<VehicleEntry>> fetchVehicles(CookieRequest request) async {
-    String url = 'http://127.0.0.1:8000/vehicle/json/';
+    String url =
+        'https://raisa-sakila-rentaraproject.pbp.cs.ui.ac.id/vehicle/json/';
     if (_searchQuery.isNotEmpty) {
       final encodedQuery = Uri.encodeQueryComponent(_searchQuery);
       url += '?search=$encodedQuery';
