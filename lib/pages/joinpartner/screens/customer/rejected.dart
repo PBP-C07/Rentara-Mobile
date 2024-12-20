@@ -25,7 +25,7 @@ class _RejectedPageState extends State<RejectedPage> {
   // Fetch data partner
   void _fetchPartnerData(CookieRequest request) async {
     try {
-      final response = await request.get('http://127.0.0.1:8000/get_partner/');
+      final response = await request.get('https://raisa-sakila-rentaraproject.pbp.cs.ui.ac.id/get_partner/');
       print(response);
 
       if (response is Map<String, dynamic> && response['status'] == 'Rejected') {
@@ -47,7 +47,7 @@ class _RejectedPageState extends State<RejectedPage> {
   void _deletePartner(BuildContext context, CookieRequest request, String partnerId) async {
     try {
       final response = await request.get(
-        'http://127.0.0.1:8000/delete_partner_flutter/$partnerId/',
+        'https://raisa-sakila-rentaraproject.pbp.cs.ui.ac.id/delete_partner_flutter/$partnerId/',
       );
 
       if (response["message"] == "Partner deleted successfully") {
