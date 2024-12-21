@@ -35,8 +35,8 @@ class _LoginPageState extends State<LoginPage> {
                 right: 0,
                 height: size.height * 0.4,
                 child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF7BA69E),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF7BA69E),
                     borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(60),
                       bottomRight: Radius.circular(60),
@@ -50,7 +50,7 @@ class _LoginPageState extends State<LoginPage> {
                 right: 20,
                 child: Container(
                   height: size.height * 0.45,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     image: DecorationImage(
                       image: AssetImage('lib/pages/main/assets/car1.png'),
                       fit: BoxFit.fitHeight,
@@ -63,7 +63,7 @@ class _LoginPageState extends State<LoginPage> {
                 left: 20,
                 right: 20,
                 child: Container(
-                  padding: EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
@@ -71,7 +71,7 @@ class _LoginPageState extends State<LoginPage> {
                       BoxShadow(
                         color: Colors.black.withOpacity(0.1),
                         blurRadius: 20,
-                        offset: Offset(0, 10),
+                        offset: const Offset(0, 10),
                       ),
                     ],
                   ),
@@ -86,7 +86,7 @@ class _LoginPageState extends State<LoginPage> {
                           color: Colors.grey[800],
                         ),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Text(
                         'Sign in to continue',
                         style: TextStyle(
@@ -94,7 +94,7 @@ class _LoginPageState extends State<LoginPage> {
                           fontSize: 16,
                         ),
                       ),
-                      SizedBox(height: 25),
+                      const SizedBox(height: 25),
                       Container(
                         decoration: BoxDecoration(
                           color: Colors.grey[100],
@@ -102,7 +102,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         child: TextField(
                           controller: _usernameController,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             hintText: 'Username',
                             prefixIcon: Icon(Icons.person_outline,
                                 color: Color(0xFF7BA69E)),
@@ -111,7 +111,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       Container(
                         decoration: BoxDecoration(
                           color: Colors.grey[100],
@@ -120,7 +120,7 @@ class _LoginPageState extends State<LoginPage> {
                         child: TextField(
                           controller: _passwordController,
                           obscureText: true,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             hintText: 'Password',
                             prefixIcon: Icon(Icons.lock_outline,
                                 color: Color(0xFF7BA69E)),
@@ -129,7 +129,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       SizedBox(
                         width: double.infinity,
                         height: 50,
@@ -162,7 +162,7 @@ class _LoginPageState extends State<LoginPage> {
                                     SnackBar(
                                       content: Text(
                                           "Welcome back, ${response['username']}"),
-                                      backgroundColor: Color(0xFF7BA69E),
+                                      backgroundColor: const Color(0xFF7BA69E),
                                     ),
                                   );
 
@@ -198,13 +198,13 @@ class _LoginPageState extends State<LoginPage> {
                             }
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFF7BA69E),
+                            backgroundColor: const Color(0xFF7BA69E),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                             elevation: 2,
                           ),
-                          child: Text(
+                          child: const Text(
                             'Sign In',
                             style: TextStyle(
                               fontSize: 16,
@@ -213,7 +213,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -230,7 +230,7 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                               );
                             },
-                            child: Text(
+                            child: const Text(
                               'Register',
                               style: TextStyle(
                                 color: Color(0xFF7BA69E),
@@ -248,7 +248,7 @@ class _LoginPageState extends State<LoginPage> {
                 top: 48,
                 left: 16,
                 child: IconButton(
-                  icon: Icon(Icons.arrow_back_ios, color: Colors.white),
+                  icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
                   onPressed: () {
                     Navigator.pop(context);
                   },
