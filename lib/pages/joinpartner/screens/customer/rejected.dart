@@ -126,12 +126,7 @@ class _RejectedPageState extends State<RejectedPage> {
                           Center(
                             child: ElevatedButton(
                               onPressed: () async {
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const ProfilePage(),
-                                  ),
-                                );
+                                Navigator.pop(context);
 
                                 // Fetch data dan hapus partner jika ada
                                 if (partnerId != null) {

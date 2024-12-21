@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:rentara_mobile/pages/joinpartner/screens/customer/editProfile.dart';
 import 'package:rentara_mobile/pages/joinpartner/screens/customer/listProduct.dart';
 import 'package:rentara_mobile/pages/joinpartner/screens/customer/pending.dart';
 import 'package:rentara_mobile/pages/joinpartner/screens/customer/registerPartner.dart';
@@ -44,7 +45,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<bool> checkPartnerStatus(CookieRequest request) async {
     try {
       // Mengirimkan permintaan GET ke server
-      final response = await request.get('http://127.0.0.1:8000/check_status/');
+      final response = await request.get('https://raisa-sakila-rentaraproject.pbp.cs.ui.ac.id/check_status/');
       print(response);
 
       return response['is_partner'] ?? false;
@@ -305,20 +306,48 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      Container(
-                        width: double.infinity,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF87A8A1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Center(
-                          child: Text(
-                            'Edit Profile',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
+                      InkWell(
+                        onTap: () async {
+                          try {
+                            final response = await request
+                                .get('https://raisa-sakila-rentaraproject.pbp.cs.ui.ac.id/check_status/');
+                            bool isPartner = await checkPartnerStatus(request);
+                            // String status = response['status'];
+                            print(response);
+                            // print('isPartner status: $isPartner'); // Debugging output
+                            if (isPartner && response['status'] == 'Approved') {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => EditPartnerApp(),
+                                ),
+                              );
+                            } 
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Error: $e'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF87A8A1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Center(
+                            child: Text(
+                              'Edit Profile',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ),
                         ),
@@ -328,7 +357,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         onTap: () async {
                           try {
                             final response = await request
-                                .get('http://127.0.0.1:8000/check_status/');
+                                .get('https://raisa-sakila-rentaraproject.pbp.cs.ui.ac.id/check_status/');
                             bool isPartner = await checkPartnerStatus(request);
                             // String status = response['status'];
                             print(response);
@@ -350,14 +379,14 @@ class _ProfilePageState extends State<ProfilePage> {
                               );
                             } else if (isPartner &&
                                 response['status'] == 'Rejected') {
-                              Navigator.pushReplacement(
+                              Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => const RejectedPage(),
                                 ),
                               );
                             } else {
-                              Navigator.push(
+                              Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) =>
@@ -380,7 +409,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         onTap: () async {
                           try {
                             final response = await request
-                                .get('http://127.0.0.1:8000/check_status/');
+                                .get('https://raisa-sakila-rentaraproject.pbp.cs.ui.ac.id/check_status/');
                             bool isPartner = await checkPartnerStatus(request);
                             // String status = response['status'];
                             print(response);
@@ -409,7 +438,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                               );
                             } else {
-                              Navigator.push(
+                              Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) =>
@@ -445,7 +474,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         child: ElevatedButton(
                           onPressed: () async {
                             final response = await request.logout(
-                              "http://127.0.0.1:8000/auth/logout/",
+                              "https://raisa-sakila-rentaraproject.pbp.cs.ui.ac.id/auth/logout/",
                             );
                             if (response['status'] == true) {
                               final prefs =
