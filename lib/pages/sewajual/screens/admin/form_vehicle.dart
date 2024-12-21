@@ -36,6 +36,31 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
     fetchApprovedStores();
   }
 
+  void _resetForm() {
+    setState(() {
+      _brand = "";
+      _type = "";
+      _color = "";
+      _vehicleType = JenisKendaraan.MOBIL;
+      _price = 0;
+      _status = Status.SEWA;
+      _phone = "";
+      _fuelType = BahanBakar.BENSIN;
+      _locationLink = "";
+      _photoLink = "";
+      if (_storeList.isNotEmpty) {
+        _store = _storeList[0];
+      }
+    });
+
+    _formKey.currentState?.reset();
+  }
+
+  Future<List<VehicleEntry>> refreshVehicles(CookieRequest request) async {
+    final response = await request.get('http://127.0.0.1:8000/vehicle/json/');
+    return vehicleEntryFromJson(jsonEncode(response));
+  }
+
   Future<void> fetchApprovedStores() async {
     try {
       final request = context.read<CookieRequest>();
@@ -125,7 +150,11 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                               child: IconButton(
                                 icon: const Icon(Icons.arrow_back,
                                     color: Colors.white),
-                                onPressed: () => Navigator.pop(context),
+                                onPressed: () async {
+                                  final newVehicle =
+                                      await refreshVehicles(request);
+                                  Navigator.pop(context, newVehicle.last);
+                                },
                               ),
                             ),
                             const SizedBox(width: 16),
@@ -361,19 +390,6 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                                 onPressed: () async {
                                   if (_formKey.currentState!.validate()) {
                                     try {
-                                      if (context.mounted) {
-                                        showDialog(
-                                          context: context,
-                                          barrierDismissible: false,
-                                          builder: (BuildContext context) {
-                                            return const Center(
-                                              child:
-                                                  CircularProgressIndicator(),
-                                            );
-                                          },
-                                        );
-                                      }
-
                                       final response = await request.postJson(
                                         "http://127.0.0.1:8000/vehicle/create-flutter/",
                                         jsonEncode({
@@ -395,33 +411,17 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                                         }),
                                       );
 
-                                      if (context.mounted &&
-                                          Navigator.canPop(context)) {
-                                        Navigator.pop(context);
-                                      }
-
                                       if (!context.mounted) return;
 
                                       if (response['status'] == 'success') {
                                         VehicleFormComponents
                                             .showSuccessSnackBar(context,
                                                 "Vehicle saved successfully!");
-                                        _formKey.currentState!.reset();
+
                                         setState(() {
-                                          _brand = "";
-                                          _type = "";
-                                          _color = "";
-                                          _vehicleType = JenisKendaraan.MOBIL;
-                                          _price = 0;
-                                          _status = Status.SEWA;
-                                          _phone = "";
-                                          _fuelType = BahanBakar.BENSIN;
-                                          _locationLink = "";
-                                          _photoLink = "";
-                                          if (_storeList.isNotEmpty) {
-                                            _store = _storeList[0];
-                                          }
+                                          _resetForm();
                                         });
+
                                         return;
                                       }
 
@@ -430,11 +430,6 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                                           response['message'] ??
                                               "Error. Please try again.");
                                     } catch (e) {
-                                      if (context.mounted &&
-                                          Navigator.canPop(context)) {
-                                        Navigator.pop(context);
-                                      }
-
                                       if (!context.mounted) return;
 
                                       VehicleFormComponents.showErrorSnackBar(

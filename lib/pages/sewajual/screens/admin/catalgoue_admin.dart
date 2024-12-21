@@ -16,57 +16,75 @@ class ProductCatalogueAdmin extends StatefulWidget {
 }
 
 class _ProductCatalogueAdminState extends State<ProductCatalogueAdmin> {
-  // Variabel untuk nerima data untuk fitur search
-  String _searchBar = ''; // Menyimpan text yang ada di search bar
-  List<VehicleEntry> _allVehicles = []; // List semua kendaraan
-  List<VehicleEntry> _filteredVehicles =
-      []; // List kendaraan yang sudah difilter
-  bool _isLoading = true; // Status loading saat searching
-  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<
-      RefreshIndicatorState>(); // Key untuk fungsi refresh/reload data
+  String _searchBar = '';
+  List<VehicleEntry> _allVehicles = [];
+  List<VehicleEntry> _filteredVehicles = [];
+  bool _isLoading = true;
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      GlobalKey<RefreshIndicatorState>();
 
   @override
   void initState() {
     super.initState();
-    _initializeData(); // Inisialisasi data saat pertama dibuat
+    _initializeData();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _refreshIndicatorKey.currentState?.show();
+    });
   }
 
-  // Fungsi untuk menginisialisasi data kendaraan
   Future<void> _initializeData() async {
+    if (!mounted) return;
+
     final request = context.read<CookieRequest>();
     try {
       final vehicles = await fetchVehicles(request);
+
+      if (!mounted) return;
+
       setState(() {
         _allVehicles = vehicles;
         _filteredVehicles = vehicles;
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
+
       setState(() {
         _isLoading = false;
       });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error loading data: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
-  // Fungsi asinkronus untuk mengambil data kendaraan dari API
   Future<List<VehicleEntry>> fetchVehicles(CookieRequest request) async {
-    final response = await request.get('http://127.0.0.1:8000/vehicle/json/');
-    return vehicleEntryFromJson(jsonEncode(response));
+    try {
+      final response = await request.get('http://127.0.0.1:8000/vehicle/json/');
+      if (response is List) {
+        return vehicleEntryFromJson(jsonEncode(response));
+      } else {
+        throw Exception('Invalid response format');
+      }
+    } catch (e) {
+      throw Exception('Failed to fetch vehicles: ${e.toString()}');
+    }
   }
 
-  // Filter kendaraan berdasarkan pencarian admin
   void _filterVehicles(String query) {
-    // Kalau tidak search apapun di search bar
     if (query.isEmpty) {
       _filteredVehicles = _allVehicles;
       return;
     }
 
     final searchLower = query.toLowerCase();
-    // Filter kendaraan berdasarkan beberapa field
     _filteredVehicles = _allVehicles.where((vehicle) {
       final fields = vehicle.fields;
-      // Daftar field yang dapat dicari di search bar
       final searchableStrings = [
         fields.merk.toLowerCase(),
         fields.tipe.toLowerCase(),
@@ -76,7 +94,6 @@ class _ProductCatalogueAdminState extends State<ProductCatalogueAdmin> {
             '',
         bahanBakarValues.reverse[fields.bahanBakar]?.toLowerCase() ?? '',
       ];
-      // Mencari apakah query ada dalam salah satu field
       return searchableStrings.any((text) => text.contains(searchLower));
     }).toList();
   }
@@ -93,23 +110,37 @@ class _ProductCatalogueAdminState extends State<ProductCatalogueAdmin> {
     });
   }
 
-  // Fungsi untuk refresh data kendaraan yang akan ditampilkan secara asinkronus
   Future<void> refreshData() async {
+    if (!mounted) return;
+
     setState(() {
       _isLoading = true;
     });
-    final request = context.read<CookieRequest>();
+
     try {
-      final vehicles = await fetchVehicles(request); // Fetch data dari server
+      final request = context.read<CookieRequest>();
+      final vehicles = await fetchVehicles(request);
+
+      if (!mounted) return;
+
       setState(() {
-        _allVehicles = vehicles; // Update semua list berdasarkan hasil fetch
-        _filterVehicles(_searchBar); // Filter kalau ada input di search bar
-        _isLoading = false; // Menghilangkan tanda loading
+        _allVehicles = vehicles;
+        _filterVehicles(_searchBar);
+        _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
+
       setState(() {
         _isLoading = false;
       });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error refreshing data: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -128,12 +159,12 @@ class _ProductCatalogueAdminState extends State<ProductCatalogueAdmin> {
         child: Stack(
           children: [
             Column(
-              // Main layout terdapat header dan list kendaraan
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header dengan search bar
-                CatalogueHeader(onSearchChanged: _handleSearch),
-                // List kendaraan, bisa discroll
+                CatalogueHeader(
+                  onSearchChanged: _handleSearch,
+                  onVehicleAdded: () => refreshData(),
+                ),
                 Expanded(
                   child: RefreshIndicator(
                     key: _refreshIndicatorKey,
@@ -161,7 +192,7 @@ class _ProductCatalogueAdminState extends State<ProductCatalogueAdmin> {
                                     ),
                                     const SizedBox(height: 8),
                                     Text(
-                                      'No vehicles available. Try different keywords.',
+                                      'Try different keywords.',
                                       style: TextStyle(
                                         fontSize: 14,
                                         color: Colors.grey[500],
