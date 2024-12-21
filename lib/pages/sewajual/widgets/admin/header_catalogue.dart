@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import '../../models/vehicle_model.dart';
 import '../../screens/admin/form_vehicle.dart';
 
 class CatalogueHeader extends StatelessWidget {
   final Function(String) onSearchChanged;
+  final Function() onVehicleAdded;
 
   const CatalogueHeader({
     super.key,
     required this.onSearchChanged,
+    required this.onVehicleAdded,
   });
 
   @override
@@ -60,15 +63,17 @@ class CatalogueHeader extends StatelessWidget {
                     Icons.add,
                     color: Color(0xFF2B6777),
                   ),
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      PageRouteBuilder(
-                        pageBuilder: (context, animation1, animation2) =>
-                            VehicleEntryFormPage(),
-                        transitionDuration: Duration.zero,
-                        reverseTransitionDuration: Duration.zero,
+                  onPressed: () async {
+                    final result =
+                        await Navigator.of(context).push<VehicleEntry>(
+                      MaterialPageRoute(
+                        builder: (context) => const VehicleEntryFormPage(),
                       ),
                     );
+
+                    if (result != null && context.mounted) {
+                      onVehicleAdded();
+                    }
                   },
                 ),
               ),
