@@ -54,10 +54,14 @@ class NavBarBottom extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.person_outline, color: Colors.white),
               onPressed: () {
-                Navigator.pushNamedAndRemoveUntil(
+                Navigator.pushReplacement(
                   context,
-                  '/profile',
-                  (route) => false, // Menghapus semua rute sebelumnya
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation1, animation2) =>
+                        ProfilePage(),
+                    transitionDuration: Duration.zero,
+                    reverseTransitionDuration: Duration.zero,
+                  ),
                 );
               },
             ),
