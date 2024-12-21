@@ -4,19 +4,32 @@ import 'package:provider/provider.dart';
 import '../../models/vehicle_model.dart';
 import '../../screens/admin/edit_vehicle.dart';
 
-class VehicleCard extends StatelessWidget {
+class VehicleCard extends StatefulWidget {
   final VehicleEntry vehicle;
+  final Function(String) onDelete;
   final VoidCallback onEditComplete;
 
   const VehicleCard({
     super.key,
     required this.vehicle,
+    required this.onDelete,
     required this.onEditComplete,
   });
 
   @override
+  State<VehicleCard> createState() => _VehicleCardState();
+}
+
+class _VehicleCardState extends State<VehicleCard> {
+  bool _isDeleting = false;
+
+  @override
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
+
+    if (_isDeleting) {
+      return const SizedBox.shrink();
+    }
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -45,7 +58,7 @@ class VehicleCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
                     image: DecorationImage(
-                      image: NetworkImage(vehicle.fields.linkFoto),
+                      image: NetworkImage(widget.vehicle.fields.linkFoto),
                       fit: BoxFit.cover,
                       onError: (_, __) =>
                           const AssetImage('assets/placeholder.png'),
@@ -58,7 +71,7 @@ class VehicleCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${vehicle.fields.merk} ${vehicle.fields.tipe}',
+                        '${widget.vehicle.fields.merk} ${widget.vehicle.fields.tipe}',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -68,7 +81,7 @@ class VehicleCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Store: ${vehicle.fields.toko}',
+                        'Store: ${widget.vehicle.fields.toko}',
                         style: TextStyle(
                           color: Colors.grey[600],
                           fontSize: 12,
@@ -86,7 +99,7 @@ class VehicleCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
-                          statusValues.reverse[vehicle.fields.status]!,
+                          statusValues.reverse[widget.vehicle.fields.status]!,
                           style: TextStyle(
                             color: Colors.teal[700],
                             fontSize: 12,
@@ -109,10 +122,10 @@ class VehicleCard extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (context) => VehicleEditFormPage(
-                            vehicle: vehicle,
+                            vehicle: widget.vehicle,
                           ),
                         ),
-                      ).then((_) => onEditComplete());
+                      ).then((_) => widget.onEditComplete());
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF2B6777),
@@ -129,30 +142,31 @@ class VehicleCard extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: () async {
                       final confirm = await showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                                title: const Text("Delete this product?"),
-                                actions: [
-                                  TextButton(
-                                    child: Text("Yes",
-                                        style:
-                                            TextStyle(color: Colors.teal[700])),
-                                    onPressed: () =>
-                                        Navigator.pop(context, true),
-                                  ),
-                                ],
-                              ));
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text("Delete this product?"),
+                          actions: [
+                            TextButton(
+                              child: Text("Yes",
+                                  style: TextStyle(color: Colors.teal[700])),
+                              onPressed: () => Navigator.pop(context, true),
+                            ),
+                          ],
+                        ),
+                      );
 
                       if (confirm) {
                         try {
+                          setState(() => _isDeleting = true);
                           final response = await request.postJson(
-                            "http://127.0.0.1:8000/vehicles/adm/${vehicle.pk}/delete/",
+                            "http://127.0.0.1:8000/vehicles/adm/${widget.vehicle.pk}/delete/",
                             "{}",
                           );
                           if (response['status'] == 'success') {
-                            onEditComplete();
+                            widget.onDelete(widget.vehicle.pk);
                           }
                         } catch (e) {
+                          setState(() => _isDeleting = false);
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                                 content: Text("Error, failed to delete.")),

@@ -60,7 +60,7 @@ class NavBarBottomAdmin extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.person_outline, color: Colors.white),
               onPressed: () async {
-                final request = context.watch<CookieRequest>();
+                final request = context.read<CookieRequest>();
                 final response = await request.logout(
                   "http://127.0.0.1:8000/auth/logout/",
                 );
