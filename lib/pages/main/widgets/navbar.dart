@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:rentara_mobile/pages/bookmark/favorite.dart';
+import 'package:rentara_mobile/pages/rentdriver/screens/customer/list_rentdriver.dart';
 import '../../sewajual/screens/user/catalogue.dart';
 import '../../main/screens/home.dart';
 import '../../main/screens/profile.dart';
@@ -49,8 +51,34 @@ class NavBarBottom extends StatelessWidget {
                 );
               },
             ),
-            const Icon(Icons.favorite_border, color: Colors.white),
-            const Icon(Icons.directions_car, color: Colors.white),
+            IconButton(
+              icon: const Icon(Icons.favorite_border, color: Colors.white),
+              onPressed: () {
+              Navigator.push(
+                context,
+                PageRouteBuilder(
+                pageBuilder: (context, animation1, animation2) =>
+                  FavoritesPage(),
+                transitionDuration: Duration.zero,
+                reverseTransitionDuration: Duration.zero,
+                ),
+              );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.drive_eta_outlined, color: Colors.white),
+              onPressed: () {
+              Navigator.push(
+                context,
+                PageRouteBuilder(
+                pageBuilder: (context, animation1, animation2) =>
+                  DriverListApp(),
+                transitionDuration: Duration.zero,
+                reverseTransitionDuration: Duration.zero,
+                ),
+              );
+              },
+            ),
             IconButton(
               icon: const Icon(Icons.person_outline, color: Colors.white),
               onPressed: () {
