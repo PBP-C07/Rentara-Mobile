@@ -96,14 +96,6 @@ class CatalogueHeader extends StatelessWidget {
                     ),
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(Icons.tune, color: Colors.teal[700]),
-                ),
               ],
             ),
           ),

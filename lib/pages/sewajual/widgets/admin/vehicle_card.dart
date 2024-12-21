@@ -21,15 +21,9 @@ class VehicleCard extends StatefulWidget {
 }
 
 class _VehicleCardState extends State<VehicleCard> {
-  bool _isDeleting = false;
-
   @override
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
-
-    if (_isDeleting) {
-      return const SizedBox.shrink();
-    }
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -49,9 +43,11 @@ class _VehicleCardState extends State<VehicleCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Bagian informasi kendaraan
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Gambar kendaraan
                 Container(
                   width: 100,
                   height: 100,
@@ -66,6 +62,7 @@ class _VehicleCardState extends State<VehicleCard> {
                   ),
                 ),
                 const SizedBox(width: 16),
+                // Informasi detail kendaraan
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -89,6 +86,7 @@ class _VehicleCardState extends State<VehicleCard> {
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 8),
+                      // Status badge
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 12,
@@ -113,12 +111,12 @@ class _VehicleCardState extends State<VehicleCard> {
               ],
             ),
             const SizedBox(height: 16),
+            // Tombol aksi (Edit dan Delete)
             Row(
               children: [
+                // Tombol Edit
                 Expanded(
                   child: ElevatedButton(
-                    child: const Text('Edit',
-                        style: TextStyle(color: Colors.white)),
                     onPressed: () {
                       Navigator.push(
                         context,
@@ -135,42 +133,56 @@ class _VehicleCardState extends State<VehicleCard> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
+                    child: const Text(
+                      'Edit',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
+                // Tombol Delete
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () async {
-                      final confirm = await showDialog(
+                      final confirm = await showDialog<bool>(
                         context: context,
                         builder: (context) => AlertDialog(
                           title: const Text("Delete this product?"),
+                          content: const Text("This action cannot be undone."),
                           actions: [
                             TextButton(
-                              child: Text("Yes",
-                                  style: TextStyle(color: Colors.teal[700])),
+                              onPressed: () => Navigator.pop(context, false),
+                              child: const Text("Cancel"),
+                            ),
+                            TextButton(
                               onPressed: () => Navigator.pop(context, true),
+                              child: Text(
+                                "Delete",
+                                style: TextStyle(color: Colors.red[700]),
+                              ),
                             ),
                           ],
                         ),
                       );
 
-                      if (confirm) {
+                      if (confirm == true && mounted) {
                         try {
-                          setState(() => _isDeleting = true);
                           final response = await request.postJson(
                             "http://127.0.0.1:8000/vehicles/adm/${widget.vehicle.pk}/delete/",
                             "{}",
                           );
-                          if (response['status'] == 'success') {
-                            widget.onDelete(widget.vehicle.pk);
+
+                          if (response['status'] == 'success' && mounted) {
+                            widget.onDelete(widget.vehicle.pk.toString());
                           }
                         } catch (e) {
-                          setState(() => _isDeleting = false);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text("Error, failed to delete.")),
-                          );
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Error, failed to delete."),
+                              ),
+                            );
+                          }
                         }
                       }
                     },
@@ -180,8 +192,10 @@ class _VehicleCardState extends State<VehicleCard> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: const Text('Delete',
-                        style: TextStyle(color: Colors.white)),
+                    child: const Text(
+                      'Delete',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ),
               ],
