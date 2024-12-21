@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:rentara_mobile/pages/rentdriver/screens/admin/manage_rentdriver.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../joinpartner/screens/admin/managePartner.dart';
 import '../../sewajual/screens/admin/catalgoue_admin.dart';
@@ -56,7 +57,20 @@ class NavBarBottomAdmin extends StatelessWidget {
                 );
               },
             ),
-            const Icon(Icons.drive_eta_outlined, color: Colors.white),
+            IconButton(
+              icon: const Icon(Icons.drive_eta_outlined, color: Colors.white),
+              onPressed: () {
+              Navigator.push(
+                context,
+                PageRouteBuilder(
+                pageBuilder: (context, animation1, animation2) =>
+                  ManageDriverListApp(),
+                transitionDuration: Duration.zero,
+                reverseTransitionDuration: Duration.zero,
+                ),
+              );
+              },
+            ),
             IconButton(
               icon: const Icon(Icons.person_outline, color: Colors.white),
               onPressed: () async {
