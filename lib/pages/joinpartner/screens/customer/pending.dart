@@ -96,10 +96,10 @@ class PendingPage extends StatelessWidget {
                     ElevatedButton(
                       onPressed: () {
                         // Navigate to ProfilePage and remove all other routes until it
-                        Navigator.popUntil(
-                          context,
-                          ModalRoute.withName('/profile'),
-                        );
+                         Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => const ProfilePage()),
+                          );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white, // White button color
