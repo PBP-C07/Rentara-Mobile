@@ -1,103 +1,131 @@
 import 'package:flutter/material.dart';
-import 'package:rentara_mobile/pages/report/screens/report_screen.dart';
+import 'package:rentara_mobile/pages/report/screens/report_form.dart';
+import 'package:rentara_mobile/pages/report/screens/report_list.dart';
 
 class ReportMenuScreen extends StatelessWidget {
-  const ReportMenuScreen({super.key});
+  const ReportMenuScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Report Menu',
-          style: TextStyle(color: Colors.white),
+          "Report Menu",
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: const Color(0xFF557B83),
-        iconTheme: const IconThemeData(color: Colors.white),
+        elevation: 0,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildMenuCard(
-              context,
-              'View Reports',
-              Icons.list_alt,
-              'See all your submitted reports',
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ReportScreen(viewOnly: true),
-                  ),
-                );
-              },
+      body: Column(
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+              color: Color(0xFF557B83),
+              borderRadius: BorderRadius.vertical(
+                bottom: Radius.circular(20),
+              ),
             ),
-            const SizedBox(height: 20),
-            _buildMenuCard(
-              context,
-              'Create Report',
-              Icons.add_circle_outline,
-              'Submit a new report',
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ReportScreen(viewOnly: false),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+            child: Row(
+              children: const [
+                Icon(Icons.report, size: 40, color: Colors.white),
+                SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    "Kelola report Anda dengan mudah melalui menu ini.",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                    ),
                   ),
-                );
-              },
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 20),
+          Expanded(
+            child: GridView.count(
+              crossAxisCount: 2,
+              mainAxisSpacing: 20,
+              crossAxisSpacing: 20,
+              padding: const EdgeInsets.all(16),
+              children: [
+                _buildMenuCard(
+                  context,
+                  icon: Icons.list_alt,
+                  title: "Daftar Report",
+                  description: "Lihat semua laporan yang telah Anda buat.",
+                  color: Colors.blueAccent,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ReportListScreen(),
+                      ),
+                    );
+                  },
+                ),
+                _buildMenuCard(
+                  context,
+                  icon: Icons.add_circle,
+                  title: "Buat Report Baru",
+                  description: "Tambahkan laporan baru terkait kendaraan.",
+                  color: Colors.green,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ReportFormScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildMenuCard(BuildContext context, String title, IconData icon,
-      String description, VoidCallback onTap) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(15),
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    icon,
-                    size: 30,
-                    color: const Color(0xFF557B83),
-                  ),
-                  const SizedBox(width: 15),
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF557B83),
-                    ),
-                  ),
-                ],
+  Widget _buildMenuCard(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String description,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withOpacity(0.3)),
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 50, color: color),
+            const SizedBox(height: 10),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: color,
               ),
-              const SizedBox(height: 10),
-              Text(
-                description,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                ),
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              description,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 12, color: Colors.black54),
+            ),
+          ],
         ),
       ),
     );
