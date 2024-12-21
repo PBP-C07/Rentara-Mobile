@@ -55,7 +55,7 @@ class _RejectedPageState extends State<RejectedPage> {
           content: const Text('Partner berhasil dihapus', style: TextStyle(color: Colors.white)),
           backgroundColor: const Color(0xFF629584),
         ));
-        Navigator.pop(context);
+      
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: const Text('Gagal menghapus partner'),
@@ -126,7 +126,12 @@ class _RejectedPageState extends State<RejectedPage> {
                           Center(
                             child: ElevatedButton(
                               onPressed: () async {
-                                Navigator.pop(context);
+                               Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const ProfilePage(),
+                                ),
+                              );
 
                                 // Fetch data dan hapus partner jika ada
                                 if (partnerId != null) {
