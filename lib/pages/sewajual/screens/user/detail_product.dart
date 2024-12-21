@@ -1,4 +1,6 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:rentara_mobile/pages/reviews/screens/reviews_page.dart';
 import '../../models/vehicle_model.dart';
 import '../../widgets/user/drawer_price.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -231,21 +233,30 @@ class CarDetailScreen extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 8),
-                        const Row(
+                        Row(
                           children: [
-                            Icon(Icons.star, color: Colors.amber, size: 20),
-                            SizedBox(width: 4),
-                            Text(
+                            const Icon(Icons.star, color: Colors.amber, size: 20),
+                            const SizedBox(width: 4),
+                            const Text(
                               '4.5',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Text(
-                              ' (20 reviews)',
-                              style: TextStyle(color: Colors.grey),
-                            ),
+                            Text.rich(
+                              TextSpan(
+                                text: ' (20 reviews)', // The main text
+                                style: const TextStyle(color: Colors.grey), // The text style
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => const ReviewPage()),
+                                    );
+                                  },
+                              ),
+                            )
                           ],
                         ),
                         const SizedBox(height: 24),
