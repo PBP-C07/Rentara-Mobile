@@ -117,6 +117,8 @@ class _VehicleCardState extends State<VehicleCard> {
               children: [
                 Expanded(
                   child: ElevatedButton(
+                    child: const Text('Edit',
+                        style: TextStyle(color: Colors.white)),
                     onPressed: () {
                       Navigator.push(
                         context,
@@ -133,8 +135,6 @@ class _VehicleCardState extends State<VehicleCard> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: const Text('Edit',
-                        style: TextStyle(color: Colors.white)),
                   ),
                 ),
                 const SizedBox(width: 8),

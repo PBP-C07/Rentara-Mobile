@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
@@ -24,19 +23,12 @@ class _CarCatalogueScreenState extends State<CarCatalogueScreen> {
   List<VehicleEntry> _vehicles = [];
   List<VehicleEntry> _filteredVehicles = [];
   bool _isLoading = true;
-  Timer? _debounce;
   SortOption? _currentSort;
 
   @override
   void initState() {
     super.initState();
     _initializeData();
-  }
-
-  @override
-  void dispose() {
-    _debounce?.cancel();
-    super.dispose();
   }
 
   Future<void> _initializeData() async {
@@ -66,6 +58,10 @@ class _CarCatalogueScreenState extends State<CarCatalogueScreen> {
   }
 
   void _filterVehicles(String query) {
+    setState(() {
+      _isLoading = true;
+    });
+
     if (query.isEmpty) {
       _filteredVehicles = List.from(_vehicles);
     } else {
@@ -84,7 +80,11 @@ class _CarCatalogueScreenState extends State<CarCatalogueScreen> {
         return searchableStrings.any((text) => text.contains(searchLower));
       }).toList();
     }
+
     _applySorting();
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   void _showFilterBottomSheet(BuildContext context) {
@@ -268,19 +268,10 @@ class _CarCatalogueScreenState extends State<CarCatalogueScreen> {
   }
 
   void _onSearchChanged(String query) {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
-
     setState(() {
       _searchQuery = query;
-      _isLoading = true;
     });
-
-    _debounce = Timer(const Duration(milliseconds: 100), () {
-      _filterVehicles(query);
-      setState(() {
-        _isLoading = false;
-      });
-    });
+    _filterVehicles(query);
   }
 
   @override

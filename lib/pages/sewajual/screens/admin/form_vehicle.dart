@@ -196,9 +196,10 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                             VehicleFormComponents.buildFormField(
                               'Brand',
                               child: TextFormField(
-                                decoration:
-                                    VehicleFormComponents.buildInputDecoration(
-                                        icon: Icons.branding_watermark),
+                                decoration: const InputDecoration(
+                                  icon: Icon(Icons.branding_watermark),
+                                  hintText: "Ex: Toyota",
+                                ),
                                 onChanged: (value) =>
                                     setState(() => _brand = value),
                                 validator:
@@ -209,9 +210,10 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                             VehicleFormComponents.buildFormField(
                               'Type',
                               child: TextFormField(
-                                decoration:
-                                    VehicleFormComponents.buildInputDecoration(
-                                        icon: Icons.category),
+                                decoration: const InputDecoration(
+                                  icon: Icon(Icons.category),
+                                  hintText: "Ex: Fortuner GR",
+                                ),
                                 onChanged: (value) =>
                                     setState(() => _type = value),
                                 validator:
@@ -222,9 +224,10 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                             VehicleFormComponents.buildFormField(
                               'Color',
                               child: TextFormField(
-                                decoration:
-                                    VehicleFormComponents.buildInputDecoration(
-                                        icon: Icons.color_lens),
+                                decoration: const InputDecoration(
+                                  icon: Icon(Icons.color_lens),
+                                  hintText: "Ex: Black",
+                                ),
                                 onChanged: (value) =>
                                     setState(() => _color = value),
                                 validator:
@@ -257,9 +260,10 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                             VehicleFormComponents.buildFormField(
                               'Price',
                               child: TextFormField(
-                                decoration:
-                                    VehicleFormComponents.buildInputDecoration(
-                                        icon: Icons.attach_money),
+                                decoration: const InputDecoration(
+                                  icon: Icon(Icons.attach_money),
+                                  hintText: "Ex: 1500000",
+                                ),
                                 keyboardType: TextInputType.number,
                                 onChanged: (value) => setState(
                                     () => _price = int.tryParse(value) ?? 0),
@@ -290,9 +294,10 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                             VehicleFormComponents.buildFormField(
                               'Phone Number',
                               child: TextFormField(
-                                decoration:
-                                    VehicleFormComponents.buildInputDecoration(
-                                        icon: Icons.phone),
+                                decoration: const InputDecoration(
+                                  icon: Icon(Icons.phone),
+                                  hintText: "Ex 0812XXXXXXXX or 62812XXXXXXX",
+                                ),
                                 keyboardType: TextInputType.phone,
                                 onChanged: (value) =>
                                     setState(() => _phone = value),
@@ -323,9 +328,10 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                             VehicleFormComponents.buildFormField(
                               'Location Link',
                               child: TextFormField(
-                                decoration:
-                                    VehicleFormComponents.buildInputDecoration(
-                                        icon: Icons.location_on),
+                                decoration: const InputDecoration(
+                                  icon: Icon(Icons.location_on),
+                                  hintText: "Ex: https://maps.app.goo.gl/....",
+                                ),
                                 onChanged: (value) =>
                                     setState(() => _locationLink = value),
                                 validator: VehicleFormComponents.validateUrl,
@@ -335,9 +341,11 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                             VehicleFormComponents.buildFormField(
                               'Photo Link',
                               child: TextFormField(
-                                decoration:
-                                    VehicleFormComponents.buildInputDecoration(
-                                        icon: Icons.photo),
+                                decoration: const InputDecoration(
+                                  icon: Icon(Icons.photo),
+                                  hintText:
+                                      "Ex: https://imgcdn.oto.com/...../abcd.jpg",
+                                ),
                                 onChanged: (value) =>
                                     setState(() => _photoLink = value),
                                 validator: VehicleFormComponents.validateUrl,
@@ -353,19 +361,18 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                                 onPressed: () async {
                                   if (_formKey.currentState!.validate()) {
                                     try {
-                                      showDialog(
-                                        context: context,
-                                        barrierDismissible: false,
-                                        builder: (BuildContext context) {
-                                          return WillPopScope(
-                                            onWillPop: () async => false,
-                                            child: const Center(
+                                      if (context.mounted) {
+                                        showDialog(
+                                          context: context,
+                                          barrierDismissible: false,
+                                          builder: (BuildContext context) {
+                                            return const Center(
                                               child:
                                                   CircularProgressIndicator(),
-                                            ),
-                                          );
-                                        },
-                                      );
+                                            );
+                                          },
+                                        );
+                                      }
 
                                       final response = await request.postJson(
                                         "http://127.0.0.1:8000/vehicle/create-flutter/",
@@ -388,8 +395,12 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                                         }),
                                       );
 
-                                      if (!mounted) return;
-                                      Navigator.of(context).pop();
+                                      if (context.mounted &&
+                                          Navigator.canPop(context)) {
+                                        Navigator.pop(context);
+                                      }
+
+                                      if (!context.mounted) return;
 
                                       if (response['status'] == 'success') {
                                         VehicleFormComponents
@@ -411,18 +422,20 @@ class _VehicleEntryFormPageState extends State<VehicleEntryFormPage> {
                                             _store = _storeList[0];
                                           }
                                         });
-                                      } else {
-                                        VehicleFormComponents.showErrorSnackBar(
-                                            context,
-                                            response['message'] ??
-                                                "Error. Please try again.");
+                                        return;
                                       }
-                                    } catch (e) {
-                                      if (!mounted) return;
 
-                                      if (Navigator.canPop(context)) {
-                                        Navigator.of(context).pop();
+                                      VehicleFormComponents.showErrorSnackBar(
+                                          context,
+                                          response['message'] ??
+                                              "Error. Please try again.");
+                                    } catch (e) {
+                                      if (context.mounted &&
+                                          Navigator.canPop(context)) {
+                                        Navigator.pop(context);
                                       }
+
+                                      if (!context.mounted) return;
 
                                       VehicleFormComponents.showErrorSnackBar(
                                           context, "Error: ${e.toString()}");
