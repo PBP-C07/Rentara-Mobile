@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:rentara_mobile/pages/report/services/report_service.dart';
 import 'package:rentara_mobile/pages/report/models/report.dart';
-import 'package:rentara_mobile/pages/report/services/report_service.dart';
 import 'package:rentara_mobile/pages/report/widgets/report_form.dart';
 
 class ReportScreen extends StatefulWidget {
-  const ReportScreen({Key? key}) : super(key: key);
+  final bool viewOnly;
+  
+  const ReportScreen({
+    Key? key,
+    required this.viewOnly,
+  }) : super(key: key);
 
   @override
   State<ReportScreen> createState() => _ReportScreenState();
@@ -36,11 +40,18 @@ class _ReportScreenState extends State<ReportScreen> {
     try {
       final success = await _reportService.createReport(report);
       if (success) {
-        _loadReports(); // Reload data
+        _loadReports();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Report submitted successfully')),
+          );
+        }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to submit report')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to submit report')),
+          );
+        }
       }
     } catch (e) {
       print('Error adding report: $e');
@@ -50,25 +61,51 @@ class _ReportScreenState extends State<ReportScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Customer Reports')),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
+      appBar: AppBar(
+        title: Text(
+          widget.viewOnly ? 'View Reports' : 'Create Report',
+          style: const TextStyle(color: Colors.white),
+        ),
+        backgroundColor: const Color(0xFF557B83),
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      body: widget.viewOnly
+          ? ListView.builder(
               itemCount: _reports.length,
               itemBuilder: (context, index) {
                 final report = _reports[index];
-                return ListTile(
-                  title: Text(report.fields.vehicle),
-                  subtitle: Text(report.fields.description),
-                  trailing: Text(report.fields.issueType),
+                return Card(
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  child: ListTile(
+                    title: Text(report.fields.vehicle),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Issue: ${report.fields.issueType}'),
+                        Text(report.fields.description),
+                        Text(
+                          'Submitted: ${report.fields.time.toString().split('.')[0]}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                    isThreeLine: true,
+                  ),
                 );
               },
+            )
+          : SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: ReportForm(onSubmit: _addReport),
+              ),
             ),
-          ),
-          ReportForm(onSubmit: _addReport),
-        ],
-      ),
     );
   }
 }

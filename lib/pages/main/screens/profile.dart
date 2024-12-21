@@ -12,6 +12,7 @@ import '../../sewajual/screens/admin/catalgoue_admin.dart';
 import 'login.dart';
 import 'register.dart';
 import '../widgets/navbar.dart';
+import 'package:rentara_mobile/pages/report/screens/report_menu.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -462,7 +463,14 @@ class _ProfilePageState extends State<ProfilePage> {
                         child: _buildMenuItem('Bookmark', Icons.bookmark),
                       ),
                       InkWell(
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ReportMenuScreen(),
+                            ),
+                          );
+                        },
                         child: _buildMenuItem('Report', Icons.flag),
                       ),
                       const SizedBox(height: 20),
