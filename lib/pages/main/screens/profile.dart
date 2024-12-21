@@ -379,7 +379,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               );
                             } else if (isPartner &&
                                 response['status'] == 'Rejected') {
-                              Navigator.push(
+                              Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => const RejectedPage(),
@@ -431,7 +431,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               );
                             } else if (isPartner &&
                                 response['status'] == 'Rejected') {
-                              Navigator.push(
+                              Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => const RejectedPage(),
