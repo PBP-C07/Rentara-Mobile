@@ -113,6 +113,13 @@ class _ProductCatalogueAdminState extends State<ProductCatalogueAdmin> {
     }
   }
 
+  void _handleDelete(String id) {
+    setState(() {
+      _allVehicles.removeWhere((vehicle) => vehicle.pk.toString() == id);
+      _filteredVehicles.removeWhere((vehicle) => vehicle.pk.toString() == id);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -174,20 +181,14 @@ class _ProductCatalogueAdminState extends State<ProductCatalogueAdmin> {
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) => CarDetailScreen(
-                                              vehicle:
-                                                  _filteredVehicles[index]),
+                                            vehicle: _filteredVehicles[index],
+                                          ),
                                         ),
                                       );
                                     },
                                     child: VehicleCard(
                                       vehicle: _filteredVehicles[index],
-                                      onDelete: (String id) {
-                                        setState(() {
-                                          _allVehicles.removeWhere((vehicle) =>
-                                              vehicle.pk.toString() == id);
-                                          _filterVehicles(_searchBar);
-                                        });
-                                      },
+                                      onDelete: _handleDelete,
                                       onEditComplete: refreshData,
                                     ),
                                   );
